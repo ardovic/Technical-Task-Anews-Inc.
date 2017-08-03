@@ -97,8 +97,10 @@ public class MainActivity extends AppCompatActivity implements Callback {
             @Override
             public void onLoadMore(int current_page) {
                 // do something...
-                Log.d("ALPHA", "Action!");
-                sendPostRequest(2);
+                int page = mApplication.getModel().getSinglePostResponseList().size() + 1;
+                Log.d("ALPHA", "Sending POST Request for page: " + page);
+
+                sendPostRequest(page);
             }
         });
 
