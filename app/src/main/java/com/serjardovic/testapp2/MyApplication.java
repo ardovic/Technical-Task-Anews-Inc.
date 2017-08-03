@@ -1,33 +1,25 @@
 package com.serjardovic.testapp2;
 
 import android.app.Application;
-import android.content.Context;
-
-import java.util.List;
-import java.util.Map;
 
 public class MyApplication extends Application {
 
     private int appCode, displayWidth, displayHeight;
+    private Model model;
     private Adapter adapter;
-    private List<String> linkList;
-    public Map<Integer, POJOItem> imageMap;
-    public MainActivity mainActivity;
 
-    public MainActivity getMainActivity() {
-        return mainActivity;
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        model = new Model();
     }
 
-    public void setMainActivity(MainActivity mainActivity) {
-        this.mainActivity = mainActivity;
+    public Model getModel() {
+        return model;
     }
 
-    public Map<Integer, POJOItem> getImageMap() {
-        return imageMap;
-    }
-
-    public void setImageMap(Map<Integer, POJOItem> imageMap) {
-        this.imageMap = imageMap;
+    public void setModel(Model model) {
+        this.model = model;
     }
 
     public int getAppCode() {
@@ -60,13 +52,5 @@ public class MyApplication extends Application {
 
     public void setAdapter(Adapter adapter) {
         this.adapter = adapter;
-    }
-
-    public List<String> getLinkList() {
-        return linkList;
-    }
-
-    public void setLinkList(List<String> linkList) {
-        this.linkList = linkList;
     }
 }

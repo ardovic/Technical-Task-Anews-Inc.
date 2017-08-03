@@ -35,7 +35,7 @@ public class ImageLoader {
     }
 
     public void DisplayImage(String url, ImageView imageView) {
-        if (url.equals("404")) {
+        if (url.substring(url.length() - 3).equals("404")) {
             imageViews.put(imageView, "404");
             Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.error404);
             imageView.setImageBitmap(bm);

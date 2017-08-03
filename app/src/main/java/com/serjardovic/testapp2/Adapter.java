@@ -13,109 +13,49 @@ import android.widget.TextView;
 
 import com.serjardovic.testapp2.utils.ImageLoader;
 
-import java.util.Map;
+import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private static final int FOOTER_VIEW = 1;
-
     public MyApplication mApplication;
-
-    public MainActivity mainActivity;
-    public Map<Integer, POJOItem> imageMap;
     public ImageLoader imageLoader;
+    public List<SinglePostResponse> singlePostResponseList;
 
-    public Adapter(Map<Integer, POJOItem> linkMap, Activity activity) {
+    public Adapter(List<SinglePostResponse> SinglePostResponseList, Activity activity) {
         mApplication = (MyApplication) activity.getApplicationContext();
-        mainActivity = (MainActivity) activity;
-        this.imageMap = linkMap;
+        this.singlePostResponseList = SinglePostResponseList;
         imageLoader = new ImageLoader(activity.getApplicationContext());
-    }
-
-    public class NormalViewHolder extends ViewHolder {
-        public NormalViewHolder(View itemView) {
-            super(itemView);
-        }
-    }
-
-    public class FooterViewHolder extends ViewHolder {
-        public FooterViewHolder(final View itemView) {
-            super(itemView);
-        }
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view;
 
-        if (viewType == FOOTER_VIEW) {
-            view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.footer_item, parent, false);
-
-            FooterViewHolder footerViewHolder = new FooterViewHolder(view);
-
-            return footerViewHolder;
-        }
-
-        view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.list_item, parent, false);
-
-        NormalViewHolder normalViewHolder = new NormalViewHolder(view);
-
-        return normalViewHolder;
+        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        try {
-            if (holder instanceof NormalViewHolder) {
-                NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
+        holder.setIsRecyclable(false);
 
-                normalViewHolder.bindView(position);
-            } else if (holder instanceof FooterViewHolder) {
-                FooterViewHolder footerViewHolder = (FooterViewHolder) holder;
-            }
+        try {
+            ViewHolder viewHolder = (ViewHolder) holder;
+            viewHolder.bindView(position);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    // Now the critical part. You have return the exact item count of your list
-// I've only one footer. So I returned data.size() + 1
-// If you've multiple headers and footers, you've to return total count
-// like, headers.size() + data.size() + footers.size()
-
     @Override
     public int getItemCount() {
-        if (imageMap == null) {
-            return 0;
-        }
-        if (imageMap.size() == 0) {
-            //Return 1 here to show nothing
-            return 1;
-        }
 
-        // Add extra view to show the footer view
-        return imageMap.size();
+        if(singlePostResponseList != null && singlePostResponseList.size() > 0){
+            return singlePostResponseList.size()*7;
+        }
+        return 0;
     }
-
-// Now define getItemViewType of your own.
-
-    @Override
-    public int getItemViewType(int position) {
-        if (position == imageMap.size()) {
-            // This is where we'll add footer.
-            return FOOTER_VIEW;
-        }
-        return super.getItemViewType(position);
-    }
-
-// So you're done with adding a footer and its action on onClick.
-// Now set the default ViewHolder for NormalViewHolder
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        // Define elements of a row here
         public TextView caption;
         public ImageView image;
         public RelativeLayout rl_container;
@@ -131,19 +71,14 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public void bindView(int itemIndex) {
 
-            if(imageMap.get(itemIndex + 1) != null){
-                caption.setText(imageMap.get(itemIndex + 1).getImageURL());
-                imageLoader.DisplayImage(imageMap.get(itemIndex + 1).getImageURL(), image);
-            } else {
-                caption.setText("Error 404. File not found!");
-                imageLoader.DisplayImage("404", image);
-            }
+                // For now assume each page of exactly 7 items
+                caption.setText(singlePostResponseList.get(itemIndex / 7).getImages()[(itemIndex % 7)]);
+                imageLoader.DisplayImage(singlePostResponseList.get(itemIndex / 7).getImages()[(itemIndex % 7)], image);
 
-                //set height in proportion to screen size
+                // set height in proportion to screen size
                 int proportionalHeight = (int) ((double) (2 * mApplication.getDisplayWidth()) / 3);
                 TableRow.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, proportionalHeight);
                 rl_container.setLayoutParams(params);
-
             }
         }
     }

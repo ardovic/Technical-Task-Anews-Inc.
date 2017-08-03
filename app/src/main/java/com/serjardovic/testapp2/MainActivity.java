@@ -1,9 +1,9 @@
 package com.serjardovic.testapp2;
 
+import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.graphics.Point;
-import android.os.AsyncTask;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,36 +14,18 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
 import com.serjardovic.testapp2.utils.FileCache;
-import com.serjardovic.testapp2.utils.MemoryCache;
-import com.serjardovic.testapp2.utils.Utils;
 
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-import javax.net.ssl.HttpsURLConnection;
-
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements Callback {
 
     public MyApplication mApplication;
     public RecyclerView mRecyclerView;
+    public LinearLayoutManager mLayoutManager;
     public ProgressBar mProgressBar;
     public LinearLayout mLinearLayout;
+    public Adapter mAdapter;
+    public FileCache fileCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,15 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         // Connecting to MyApplication class
-        mApplication = (MyApplication)getApplicationContext();
-
-        // Creating an AppCode for this session and passing it to MyApplication
-        mApplication.setAppCode((int)(Math.random() * 100000));
-
-        // Passing shared parameters to MyApplication
-        mApplication.setMainActivity(this);
-        mApplication.setLinkList(new ArrayList<String>());
-        mApplication.setImageMap(new TreeMap<Integer, POJOItem>());
+        mApplication = (MyApplication) getApplicationContext();
 
         // Retrieving display parameters and passing them to MyApplication
         final Display display = getWindowManager().getDefaultDisplay();
@@ -69,39 +43,89 @@ public class MainActivity extends AppCompatActivity {
         mApplication.setDisplayHeight(size.y);
         Log.d("ALPHA", "Device screen resolution: " + mApplication.getDisplayWidth() + " x " + mApplication.getDisplayHeight());
 
+        fileCache = new FileCache(this);
+
         // Declaring all UI components
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
         mLinearLayout = (LinearLayout) findViewById(R.id.ll_layer);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loader);
 
-        loadNextPage();
+        if (mApplication.getModel().getSinglePostResponseList().size() == 0) {
+            // Upon first ever launch send the first POST request
+            sendPostRequest(1);
+        } else {
+            manageSituation();
+        }
     }
+
+    public void manageSituation() {
+            initializeRecycler();
+            displayList();
+
+        for (int i = 0; i < mApplication.getModel().getSinglePostResponseList().size(); i++) {
+            for (int j = 0; j < mApplication.getModel().getSinglePostResponseList().get(i).getImages().length; j++) {
+                String current_page = i + "";
+                String item_on_page = j + "";
+                String fileName = mApplication.getModel().getSinglePostResponseList().get(i).getImages()[j];
+                File file = fileCache.getFile(fileName);
+                if (!file.exists()) {
+                    new DownloadImages(this).execute(current_page, item_on_page);
+                }
+            }
+        }
+    }
+
 
     @Override
     protected void onDestroy() {
-        mApplication.getLinkList().clear();
-        mApplication.getImageMap().clear();
-        mRecyclerView.setAdapter(null);
+        //mRecyclerView.setAdapter(null);
         super.onDestroy();
     }
 
-    //TODO
-    //public void display..
     public void initializeRecycler() {
-        mApplication.setAdapter(new Adapter(mApplication.getImageMap(), MainActivity.this));
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+        if (mApplication.getAdapter() != null) {
+            mAdapter = mApplication.getAdapter();
+        } else {
+            mApplication.setAdapter(new Adapter(mApplication.getModel().getSinglePostResponseList(), MainActivity.this));
+            mAdapter = mApplication.getAdapter();
+        }
+        mLayoutManager = new LinearLayoutManager(getApplicationContext());
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.setAdapter(mApplication.getAdapter());
+        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
+            @Override
+            public void onLoadMore(int current_page) {
+                // do something...
+                Log.d("ALPHA", "Action!");
+                sendPostRequest(2);
+            }
+        });
+
+
     }
 
-    public void loadNextPage() {
-        new SendPostRequest(this).execute("" + (mApplication.getLinkList().size() / 7 + 1));
+    public void sendPostRequest(int page) {
+
+        if (page != 0) {
+            new SendPostRequest(this).execute(page + "");
+        } else {
+            Log.d("ALPHA", "No more pages left!");
+        }
     }
 
     public void displayList() {
         mRecyclerView.setVisibility(View.VISIBLE);
         mLinearLayout.setVisibility(View.GONE);
         mProgressBar.setVisibility(View.GONE);
+    }
+
+    public Adapter getAdapter() {
+        return mAdapter;
+    }
+
+    public Context getContext() {
+        return this;
     }
 }
 
