@@ -31,7 +31,6 @@ public class MainActivity extends AppCompatActivity implements Callback {
     public LinearLayout mLinearLayout;
     public Adapter mAdapter;
     public FileCache fileCache;
-    public volatile int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mLinearLayout = (LinearLayout) findViewById(R.id.ll_layer);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loader);
 
-        if (mApplication.getModel().getSinglePostResponseList().size() == 0) {
+        if (mApplication.getModel().getImageData().getImages().size() == 0) {
             // Upon first ever launch send the first POST request
             sendPostRequest(1);
         } else {
@@ -72,16 +71,11 @@ public class MainActivity extends AppCompatActivity implements Callback {
             displayList();
         }
 
-
-        for (int i = 0; i < mApplication.getModel().getSinglePostResponseList().size(); i++) {
-            for (int j = 0; j < mApplication.getModel().getSinglePostResponseList().get(i).getImages().length; j++) {
-                String current_page = i + "";
-                String item_on_page = j + "";
-                String fileName = mApplication.getModel().getSinglePostResponseList().get(i).getImages()[j];
-                File file = fileCache.getFile(fileName);
-                if (!file.exists()) {
-                    new DownloadImages(this).execute(current_page, item_on_page);
-                }
+        for(String imageUrl : mApplication.getModel().getImageData().getImages()) {
+            File file = fileCache.getFile(imageUrl);
+            int itemIndex = mApplication.getModel().getImageData().getImages().indexOf(imageUrl);
+            if (!file.exists()) {
+                new DownloadImages(this).execute(itemIndex + "");
             }
         }
     }
@@ -97,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
         if (mApplication.getAdapter() != null) {
             mAdapter = mApplication.getAdapter();
         } else {
-            mApplication.setAdapter(new Adapter(mApplication.getModel().getSinglePostResponseList(), MainActivity.this));
+            mApplication.setAdapter(new Adapter(mApplication.getModel().getImageData(), this));
             mAdapter = mApplication.getAdapter();
         }
         mLayoutManager = new LinearLayoutManager(getApplicationContext());
@@ -107,11 +101,14 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mRecyclerView.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
             @Override
             public synchronized void onLoadMore(int current_page) {
-                // do something...
-                page = mApplication.getModel().getSinglePostResponseList().size() + 1;
-                Log.d("ALPHA", "Sending POST Request for page: " + page);
 
-                sendPostRequest(page);
+                if(mApplication.getModel().getImageData().getNext_page() != 0) {
+
+                    Log.d("ALPHA", "Sending POST Request for page: " + mApplication.getModel().getImageData().getNext_page());
+
+                    sendPostRequest(mApplication.getModel().getImageData().getNext_page());
+
+                }
             }
         });
 
@@ -120,11 +117,8 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
     public void sendPostRequest(int page) {
 
-        if (page != 0) {
             new SendPostRequest(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, page + "");
-        } else {
-            Log.d("ALPHA", "No more pages left!");
-        }
+
     }
 
     public void displayList() {

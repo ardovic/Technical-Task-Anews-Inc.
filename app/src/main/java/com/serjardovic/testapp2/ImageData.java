@@ -1,12 +1,14 @@
 package com.serjardovic.testapp2;
 
-public class SinglePostResponse {
+import java.util.List;
 
-        private String[] images;
+public class ImageData {
+
+        public List<String> images;
         private int current_page;
         private int next_page;
 
-        public SinglePostResponse(String[] images, int next_page, int current_page){
+        public ImageData(List<String> images, int next_page, int current_page){
 
                 this.images = images;
                 this.next_page = next_page;
@@ -14,11 +16,11 @@ public class SinglePostResponse {
 
         }
 
-        public String[] getImages() {
+        public List<String> getImages() {
                 return images;
         }
 
-        public void setImages(String[] images) {
+        public void setImages(List<String> images) {
                 this.images = images;
         }
 

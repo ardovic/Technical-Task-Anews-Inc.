@@ -34,19 +34,14 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
 
-        // params[0] - current_page (0 at first)
-        // params[1] - item in the array on that page (0 at first)
+        int itemIndex = Integer.parseInt(params[0]);
 
-        int current_page = Integer.parseInt(params[0]);
-        int item_on_page = Integer.parseInt(params[1]);
-
-        String fileName = mApplication.getModel().getSinglePostResponseList().get(current_page).getImages()[item_on_page];
-
-        int position = (current_page * mApplication.getModel().getSinglePostResponseList().get(current_page).getImages().length) + item_on_page;
+        String fileName = mApplication.getModel().getImageData().getImages().get(itemIndex);
 
         File file = fileCache.getFile(fileName);
+
         if (file.exists())
-            return "Success: File already exists" + "*" + fileName + "*" + current_page + "*" + item_on_page + "*" + position;
+            return "Success: File already exists" + "*" + fileName + "*" + itemIndex;
         try {
             URL imageUrl = new URL(fileName);
             HttpURLConnection conn = (HttpURLConnection) imageUrl.openConnection();
@@ -59,15 +54,15 @@ class DownloadImages extends AsyncTask<String, Void, String> {
             os.close();
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
-            return "Error: 404" + "*" + fileName + "*" + current_page + "*" + item_on_page + "*" + position;
+            return "Error: 404" + "*" + fileName + "*" + itemIndex;
         } catch (Throwable ex) {
             ex.printStackTrace();
             if (ex instanceof OutOfMemoryError)
                 memoryCache.clear();
-            return "Error: Out of memory, clearing memory cache" + "*" + fileName + "*" + current_page + "*" + item_on_page + "*" + position;
+            return "Error: Out of memory, clearing memory cache" + "*" + fileName + "*" + itemIndex;
         }
         //this string is returned as result
-        return "Success: File downloaded" + "*" + fileName + "*" + current_page + "*" + item_on_page + "*" + position;
+        return "Success: File downloaded" + "*" + fileName + "*" + itemIndex;
     }
 
     @Override
@@ -77,19 +72,18 @@ class DownloadImages extends AsyncTask<String, Void, String> {
 
         String response = count[0];
         String fileName = count[1];
-        int current_page = Integer.parseInt(count[2]);
-        int item_on_page = Integer.parseInt(count[3]);
-        int position = Integer.parseInt(count[4]);
+        int itemIndex = Integer.parseInt(count[2]);
 
         if (response.contains("Success")) {
 
-            getAdapter(callback).notifyItemChanged(position);
+            getAdapter(callback).notifyItemChanged(itemIndex);
 
         } else {
 
             if (response.equals("Error: 404")) {
-                mApplication.getModel().getSinglePostResponseList().get(current_page).getImages()[item_on_page] = fileName + "404";
-                getAdapter(callback).notifyItemChanged(position);
+                mApplication.getModel().getImageData().getImages().remove(itemIndex);
+                mApplication.getModel().getImageData().getImages().add(itemIndex, fileName + "404");
+                getAdapter(callback).notifyItemChanged(itemIndex);
             } else {
                 // TODO
                 // If out of memory, retry downloading the same item

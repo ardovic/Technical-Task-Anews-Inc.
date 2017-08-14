@@ -5,14 +5,19 @@ import java.util.List;
 
 class Model {
 
-    private List<SinglePostResponse> SinglePostResponseList;
+    private ImageData imageData;
 
     Model() {
-        SinglePostResponseList = new ArrayList<>();
+        imageData = new ImageData(new ArrayList<String>(), 0, 1);
     }
 
-    List<SinglePostResponse> getSinglePostResponseList() {
-        return SinglePostResponseList;
+    public ImageData getImageData() {
+        return imageData;
     }
+
+    public void setImageData(ImageData imageData) {
+        this.imageData = imageData;
+    }
+
 
 }

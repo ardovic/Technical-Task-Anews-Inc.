@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -31,7 +33,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
         if(mApplication.getAdapter() != null) {
             mApplication.getAdapter().setFooter(1);
-            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getSinglePostResponseList().size() * 7);
+            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageData().getImages().size());
         }
 
     }
@@ -82,7 +84,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
         if(mApplication.getAdapter() != null) {
             mApplication.getAdapter().setFooter(0);
-            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getSinglePostResponseList().size() * 7);
+            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageData().getImages().size());
         }
 
         String[] resultArray = ParseJSONPage(result);
@@ -102,14 +104,16 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
                 Log.d("ALPHA", "Current page: " + resultArray[resultArray.length - 1] + ", next page: " + resultArray[resultArray.length - 3]);
 
-                String[] temp = new String[resultArray.length - 4];
+                List<String> imageData = mApplication.getModel().getImageData().getImages();
 
                 for (int i = 0; i < resultArray.length - 4; i++) {
-                    temp[i] = resultArray[i];
+                    imageData.add(resultArray[i]);
                 }
 
-                mApplication.getModel().getSinglePostResponseList().add(new SinglePostResponse(temp, Integer.parseInt(resultArray[resultArray.length - 3]),
-                        Integer.parseInt(resultArray[resultArray.length - 1])));
+                mApplication.getModel().getImageData().setImages(imageData);
+                mApplication.getModel().getImageData().setCurrent_page(Integer.parseInt(resultArray[resultArray.length - 1]));
+                mApplication.getModel().getImageData().setNext_page(Integer.parseInt(resultArray[resultArray.length - 3]));
+
             } else {
 
                 String[] temp = new String[resultArray.length - 2];
@@ -120,7 +124,9 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                     temp[i] = resultArray[i];
                 }
 
-                mApplication.getModel().getSinglePostResponseList().add(new SinglePostResponse(temp, 0, Integer.parseInt(resultArray[resultArray.length - 1])));
+                mApplication.getModel().getImageData().setCurrent_page(Integer.parseInt(resultArray[resultArray.length - 1]));
+                mApplication.getModel().getImageData().setNext_page(0);
+
             }
 
             manageSituation(callback);

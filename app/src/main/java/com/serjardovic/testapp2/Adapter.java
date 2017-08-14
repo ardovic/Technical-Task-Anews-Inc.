@@ -27,12 +27,14 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public MyApplication mApplication;
     public ImageLoader imageLoader;
-    public List<SinglePostResponse> singlePostResponseList;
+    public ImageData imageData;
+    public List<String> images;
 
-    public Adapter(List<SinglePostResponse> SinglePostResponseList, Activity activity) {
-        mApplication = (MyApplication) activity.getApplicationContext();
-        this.singlePostResponseList = SinglePostResponseList;
-        imageLoader = new ImageLoader(activity.getApplicationContext());
+    public Adapter(ImageData imageData, Callback callback) {
+        mApplication = (MyApplication) callback.getContext().getApplicationContext();
+        this.imageData = imageData;
+        imageLoader = new ImageLoader(mApplication);
+        images = imageData.getImages();
     }
 
     public class NormalViewHolder extends ViewHolder {
@@ -88,19 +90,19 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemCount() {
 
-        if (singlePostResponseList == null) {
+        if (images == null) {
             return 0;
-        } else if (singlePostResponseList.size() == 0) {
+        } else if (images.size() == 0) {
             //Return 1 here to show nothing
             return 1;
         } else {
-            return singlePostResponseList.size()*7 + footer;
+            return images.size() + footer;
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (position == singlePostResponseList.size()*7) {
+        if (position == images.size()) {
             // This is where we'll add footer.
             return FOOTER_VIEW;
         }
@@ -110,7 +112,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public TextView caption;
-        public ImageView image;
+        public ImageView imageView;
         public RelativeLayout rl_container;
 
         public ViewHolder(View itemView) {
@@ -119,15 +121,14 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             // Find view by ID and initialize here
             rl_container = (RelativeLayout) itemView.findViewById(R.id.rl_container);
             caption = (TextView) itemView.findViewById(R.id.caption);
-            image = (ImageView) itemView.findViewById(R.id.image);
+            imageView = (ImageView) itemView.findViewById(R.id.image);
 
         }
 
         public void bindView(int itemIndex) {
 
-                // For now assume each page of exactly 7 items
-                caption.setText(singlePostResponseList.get(itemIndex / 7).getImages()[(itemIndex % 7)]);
-                imageLoader.DisplayImage(singlePostResponseList.get(itemIndex / 7).getImages()[(itemIndex % 7)], image);
+                caption.setText(images.get(itemIndex));
+                imageLoader.DisplayImage(images.get(itemIndex), imageView);
 
                 // set height in proportion to screen size
                 int proportionalHeight = (int) ((double) (2 * mApplication.getDisplayWidth()) / 3);
