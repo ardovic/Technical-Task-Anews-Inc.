@@ -31,7 +31,7 @@ public class ImageLoader {
         mApplication = (MyApplication) context.getApplicationContext();
         this.context = context;
         fileCache = new FileCache(context);
-        executorService = Executors.newFixedThreadPool(5);
+        executorService = Executors.newFixedThreadPool(mApplication.getNumberOfCores() - 1);
     }
 
     public void DisplayImage(String url, ImageView imageView) {
@@ -60,8 +60,13 @@ public class ImageLoader {
 
         //from SD cache
         Bitmap b = decodeFile(f);
-        if (b != null)
+        if (b != null) {
             return b;
+        }
+
+
+
+
         /*
         //from web
         try {

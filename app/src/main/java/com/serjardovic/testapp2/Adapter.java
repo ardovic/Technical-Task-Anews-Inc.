@@ -17,6 +17,14 @@ import java.util.List;
 
 public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private static final int FOOTER_VIEW = 1;
+
+    public void setFooter(int footer) {
+        this.footer = footer;
+    }
+
+    private int footer = 0;
+
     public MyApplication mApplication;
     public ImageLoader imageLoader;
     public List<SinglePostResponse> singlePostResponseList;
@@ -27,20 +35,51 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         imageLoader = new ImageLoader(activity.getApplicationContext());
     }
 
+    public class NormalViewHolder extends ViewHolder {
+        public NormalViewHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    public class FooterViewHolder extends ViewHolder {
+        public FooterViewHolder(final View itemView) {
+            super(itemView);
+        }
+    }
+
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view;
 
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
+        if (viewType == FOOTER_VIEW) {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.footer_item, parent, false);
+
+            FooterViewHolder footerViewHolder = new FooterViewHolder(view);
+
+            return footerViewHolder;
+        }
+
+        view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.list_item, parent, false);
+
+        NormalViewHolder normalViewHolder = new NormalViewHolder(view);
+
+        return normalViewHolder;
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        holder.setIsRecyclable(false);
-
         try {
-            ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.bindView(position);
+            if (holder instanceof NormalViewHolder) {
+                NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
+
+                normalViewHolder.bindView(position);
+            } else if (holder instanceof FooterViewHolder) {
+                FooterViewHolder footerViewHolder = (FooterViewHolder) holder;
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -49,10 +88,24 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemCount() {
 
-        if(singlePostResponseList != null && singlePostResponseList.size() > 0){
-            return singlePostResponseList.size()*7;
+        if (singlePostResponseList == null) {
+            return 0;
+        } else if (singlePostResponseList.size() == 0) {
+            //Return 1 here to show nothing
+            return 1;
+        } else {
+            return singlePostResponseList.size()*7 + footer;
         }
-        return 0;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        if (position == singlePostResponseList.size()*7) {
+            // This is where we'll add footer.
+            return FOOTER_VIEW;
+        }
+
+        return super.getItemViewType(position);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -62,6 +115,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public ViewHolder(View itemView) {
             super(itemView);
+            setIsRecyclable(false);
             // Find view by ID and initialize here
             rl_container = (RelativeLayout) itemView.findViewById(R.id.rl_container);
             caption = (TextView) itemView.findViewById(R.id.caption);

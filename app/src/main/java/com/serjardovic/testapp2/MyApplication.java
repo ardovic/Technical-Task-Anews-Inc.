@@ -4,7 +4,10 @@ import android.app.Application;
 
 public class MyApplication extends Application {
 
-    private int appCode, displayWidth, displayHeight;
+    private int appCode;
+    private int displayWidth;
+    private int displayHeight;
+    private int numberOfCores;
     private Model model;
     private Adapter adapter;
 
@@ -52,5 +55,13 @@ public class MyApplication extends Application {
 
     public void setAdapter(Adapter adapter) {
         this.adapter = adapter;
+    }
+
+    public int getNumberOfCores() {
+        return numberOfCores;
+    }
+
+    public void setNumberOfCores(int numberOfCores) {
+        this.numberOfCores = numberOfCores;
     }
 }

@@ -28,6 +28,12 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
     }
 
     protected void onPreExecute() {
+
+        if(mApplication.getAdapter() != null) {
+            mApplication.getAdapter().setFooter(1);
+            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getSinglePostResponseList().size() * 7);
+        }
+
     }
 
     protected String doInBackground(String... args) {
@@ -73,6 +79,11 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
     @Override
     protected void onPostExecute(String result) {
+
+        if(mApplication.getAdapter() != null) {
+            mApplication.getAdapter().setFooter(0);
+            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getSinglePostResponseList().size() * 7);
+        }
 
         String[] resultArray = ParseJSONPage(result);
 

@@ -1,6 +1,8 @@
 package com.serjardovic.testapp2;
 
 import android.content.Context;
+import android.os.AsyncTask;
+import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.graphics.Point;
@@ -13,9 +15,12 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.utils.FileCache;
 
 import java.io.File;
+import java.io.FileFilter;
+import java.util.regex.Pattern;
 
 public class MainActivity extends AppCompatActivity implements Callback {
 
@@ -26,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     public LinearLayout mLinearLayout;
     public Adapter mAdapter;
     public FileCache fileCache;
+    public volatile int page;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +48,8 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mApplication.setDisplayWidth(size.x);
         mApplication.setDisplayHeight(size.y);
         Log.d("ALPHA", "Device screen resolution: " + mApplication.getDisplayWidth() + " x " + mApplication.getDisplayHeight());
+        mApplication.setNumberOfCores(CoreManager.getNumberOfCores());
+        Log.d("ALPHA", "Number of cores available on the device: " + CoreManager.getNumberOfCores());
 
         fileCache = new FileCache(this);
 
@@ -59,8 +67,11 @@ public class MainActivity extends AppCompatActivity implements Callback {
     }
 
     public void manageSituation() {
+        if(mAdapter == null){
             initializeRecycler();
             displayList();
+        }
+
 
         for (int i = 0; i < mApplication.getModel().getSinglePostResponseList().size(); i++) {
             for (int j = 0; j < mApplication.getModel().getSinglePostResponseList().get(i).getImages().length; j++) {
@@ -95,9 +106,9 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
             @Override
-            public void onLoadMore(int current_page) {
+            public synchronized void onLoadMore(int current_page) {
                 // do something...
-                int page = mApplication.getModel().getSinglePostResponseList().size() + 1;
+                page = mApplication.getModel().getSinglePostResponseList().size() + 1;
                 Log.d("ALPHA", "Sending POST Request for page: " + page);
 
                 sendPostRequest(page);
@@ -110,7 +121,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     public void sendPostRequest(int page) {
 
         if (page != 0) {
-            new SendPostRequest(this).execute(page + "");
+            new SendPostRequest(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, page + "");
         } else {
             Log.d("ALPHA", "No more pages left!");
         }
