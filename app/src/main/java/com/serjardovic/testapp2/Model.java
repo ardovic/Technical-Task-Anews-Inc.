@@ -1,23 +1,19 @@
 package com.serjardovic.testapp2;
 
-import java.util.ArrayList;
-import java.util.List;
-
 class Model {
 
-    private ImageData imageData;
+    private ImageDataInfo imageDataInfo;
 
     Model() {
-        imageData = new ImageData(new ArrayList<String>(), 0, 1);
+        imageDataInfo = new ImageDataInfo();
     }
 
-    public ImageData getImageData() {
-        return imageData;
+    public ImageDataInfo getImageDataInfo() {
+        return imageDataInfo;
     }
 
-    public void setImageData(ImageData imageData) {
-        this.imageData = imageData;
+    public void setImageDataInfo (ImageDataInfo imageDataInfo) {
+        this.imageDataInfo = imageDataInfo;
     }
-
 
 }

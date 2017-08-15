@@ -2,25 +2,20 @@ package com.serjardovic.testapp2;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.graphics.Point;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.Display;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
-import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.utils.FileCache;
 
 import java.io.File;
-import java.io.FileFilter;
-import java.util.regex.Pattern;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements Callback {
 
@@ -31,6 +26,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     public LinearLayout mLinearLayout;
     public Adapter mAdapter;
     public FileCache fileCache;
+    public List<String> images;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,16 +35,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
         // Connecting to MyApplication class
         mApplication = (MyApplication) getApplicationContext();
-
-        // Retrieving display parameters and passing them to MyApplication
-        final Display display = getWindowManager().getDefaultDisplay();
-        Point size = new Point();
-        display.getSize(size);
-        mApplication.setDisplayWidth(size.x);
-        mApplication.setDisplayHeight(size.y);
-        Log.d("ALPHA", "Device screen resolution: " + mApplication.getDisplayWidth() + " x " + mApplication.getDisplayHeight());
-        mApplication.setNumberOfCores(CoreManager.getNumberOfCores());
-        Log.d("ALPHA", "Number of cores available on the device: " + CoreManager.getNumberOfCores());
+        images = mApplication.getModel().getImageDataInfo().getImageData().getImages();
 
         fileCache = new FileCache(this);
 
@@ -57,7 +44,11 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mLinearLayout = (LinearLayout) findViewById(R.id.ll_layer);
         mProgressBar = (ProgressBar) findViewById(R.id.pb_loader);
 
-        if (mApplication.getModel().getImageData().getImages().size() == 0) {
+
+
+
+
+        if (images.size() == 0) {
             // Upon first ever launch send the first POST request
             sendPostRequest(1);
         } else {
@@ -71,9 +62,9 @@ public class MainActivity extends AppCompatActivity implements Callback {
             displayList();
         }
 
-        for(String imageUrl : mApplication.getModel().getImageData().getImages()) {
+        for(String imageUrl : images) {
             File file = fileCache.getFile(imageUrl);
-            int itemIndex = mApplication.getModel().getImageData().getImages().indexOf(imageUrl);
+            int itemIndex = images.indexOf(imageUrl);
             if (!file.exists()) {
                 new DownloadImages(this).execute(itemIndex + "");
             }
@@ -91,28 +82,28 @@ public class MainActivity extends AppCompatActivity implements Callback {
         if (mApplication.getAdapter() != null) {
             mAdapter = mApplication.getAdapter();
         } else {
-            mApplication.setAdapter(new Adapter(mApplication.getModel().getImageData(), this));
+            mApplication.setAdapter(new Adapter(mApplication.getModel().getImageDataInfo().getImageData(), this));
             mAdapter = mApplication.getAdapter();
         }
         mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager) {
+        mRecyclerView.setOnScrollListener(new EndlessRecyclerOnScrollListener(mLayoutManager, this) {
             @Override
-            public synchronized void onLoadMore(int current_page) {
+            public synchronized void onLoadMore() {
 
-                if(mApplication.getModel().getImageData().getNext_page() != 0) {
+                int nextPage = mApplication.getModel().getImageDataInfo().getImageData().getNextPage();
 
-                    Log.d("ALPHA", "Sending POST Request for page: " + mApplication.getModel().getImageData().getNext_page());
+                if(nextPage != 0) {
 
-                    sendPostRequest(mApplication.getModel().getImageData().getNext_page());
-
+                    Log.d("ALPHA", "Sending POST Request for page: " + nextPage);
+                    sendPostRequest(nextPage);
+                } else {
+                    Log.d("ALPHA", "No more pages left!");
                 }
             }
         });
-
-
     }
 
     public void sendPostRequest(int page) {

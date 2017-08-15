@@ -12,7 +12,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.net.ssl.HttpsURLConnection;
@@ -26,17 +25,9 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
         this.callback = callback;
         mApplication = (MyApplication) callback.getContext().getApplicationContext();
-
     }
 
-    protected void onPreExecute() {
-
-        if(mApplication.getAdapter() != null) {
-            mApplication.getAdapter().setFooter(1);
-            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageData().getImages().size());
-        }
-
-    }
+    protected void onPreExecute() {}
 
     protected String doInBackground(String... args) {
 
@@ -82,11 +73,6 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        if(mApplication.getAdapter() != null) {
-            mApplication.getAdapter().setFooter(0);
-            mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageData().getImages().size());
-        }
-
         String[] resultArray = ParseJSONPage(result);
 
         if (resultArray[0].equals("Parser error")) {
@@ -104,15 +90,15 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
                 Log.d("ALPHA", "Current page: " + resultArray[resultArray.length - 1] + ", next page: " + resultArray[resultArray.length - 3]);
 
-                List<String> imageData = mApplication.getModel().getImageData().getImages();
+                List<String> imageData = mApplication.getModel().getImageDataInfo().getImageData().getImages();
 
                 for (int i = 0; i < resultArray.length - 4; i++) {
                     imageData.add(resultArray[i]);
                 }
 
-                mApplication.getModel().getImageData().setImages(imageData);
-                mApplication.getModel().getImageData().setCurrent_page(Integer.parseInt(resultArray[resultArray.length - 1]));
-                mApplication.getModel().getImageData().setNext_page(Integer.parseInt(resultArray[resultArray.length - 3]));
+                mApplication.getModel().getImageDataInfo().getImageData().setImages(imageData);
+                mApplication.getModel().getImageDataInfo().getImageData().setCurrentPage(Integer.parseInt(resultArray[resultArray.length - 1]));
+                mApplication.getModel().getImageDataInfo().getImageData().setNextPage(Integer.parseInt(resultArray[resultArray.length - 3]));
 
             } else {
 
@@ -124,12 +110,16 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                     temp[i] = resultArray[i];
                 }
 
-                mApplication.getModel().getImageData().setCurrent_page(Integer.parseInt(resultArray[resultArray.length - 1]));
-                mApplication.getModel().getImageData().setNext_page(0);
+                mApplication.getModel().getImageDataInfo().getImageData().setCurrentPage(Integer.parseInt(resultArray[resultArray.length - 1]));
+                mApplication.getModel().getImageDataInfo().getImageData().setNextPage(0);
 
             }
 
             manageSituation(callback);
+
+            if(mApplication.getAdapter() != null) {
+                mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageDataInfo().getImageData().getImages().size()-1);
+            }
         }
     }
 

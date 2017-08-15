@@ -36,7 +36,7 @@ class DownloadImages extends AsyncTask<String, Void, String> {
 
         int itemIndex = Integer.parseInt(params[0]);
 
-        String fileName = mApplication.getModel().getImageData().getImages().get(itemIndex);
+        String fileName = mApplication.getModel().getImageDataInfo().getImageData().getImages().get(itemIndex);
 
         File file = fileCache.getFile(fileName);
 
@@ -81,8 +81,8 @@ class DownloadImages extends AsyncTask<String, Void, String> {
         } else {
 
             if (response.equals("Error: 404")) {
-                mApplication.getModel().getImageData().getImages().remove(itemIndex);
-                mApplication.getModel().getImageData().getImages().add(itemIndex, fileName + "404");
+                mApplication.getModel().getImageDataInfo().getImageData().getImages().remove(itemIndex);
+                mApplication.getModel().getImageDataInfo().getImageData().getImages().add(itemIndex, fileName + "404");
                 getAdapter(callback).notifyItemChanged(itemIndex);
             } else {
                 // TODO

@@ -1,10 +1,17 @@
 package com.serjardovic.testapp2;
 
 import android.app.Application;
+import android.graphics.Point;
+import android.util.Log;
+import android.view.Display;
+import android.view.WindowManager;
+
+import com.serjardovic.testapp2.utils.CoreManager;
+
+import java.util.ArrayList;
 
 public class MyApplication extends Application {
 
-    private int appCode;
     private int displayWidth;
     private int displayHeight;
     private int numberOfCores;
@@ -15,38 +22,35 @@ public class MyApplication extends Application {
     public void onCreate() {
         super.onCreate();
         model = new Model();
+
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        displayWidth = point.x;
+        displayHeight = point.y;
+
+        model.setImageDataInfo(new ImageDataInfo());
+        model.getImageDataInfo().setImageData(new ImageData(new ArrayList<String>(), 1, 0));
+
+        Log.d("ALPHA", "Device screen resolution: " + displayWidth + " x " + displayHeight);
+
+        numberOfCores = CoreManager.getNumberOfCores();
+
+        Log.d("ALPHA", "Number of cores available on the device: " + numberOfCores);
+
     }
 
     public Model getModel() {
         return model;
     }
 
-    public void setModel(Model model) {
-        this.model = model;
-    }
-
-    public int getAppCode() {
-        return appCode;
-    }
-
-    public void setAppCode(int appCode) {
-        this.appCode = appCode;
-    }
-
     public int getDisplayWidth() {
         return displayWidth;
     }
 
-    public void setDisplayWidth(int displayWidth) {
-        this.displayWidth = displayWidth;
-    }
-
     public int getDisplayHeight() {
         return displayHeight;
-    }
-
-    public void setDisplayHeight(int displayHeight) {
-        this.displayHeight = displayHeight;
     }
 
     public Adapter getAdapter() {
@@ -59,9 +63,5 @@ public class MyApplication extends Application {
 
     public int getNumberOfCores() {
         return numberOfCores;
-    }
-
-    public void setNumberOfCores(int numberOfCores) {
-        this.numberOfCores = numberOfCores;
     }
 }

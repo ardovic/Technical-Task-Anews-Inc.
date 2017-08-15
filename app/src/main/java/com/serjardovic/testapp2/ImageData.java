@@ -4,16 +4,15 @@ import java.util.List;
 
 public class ImageData {
 
-        public List<String> images;
-        private int current_page;
-        private int next_page;
+        private List<String> images;
+        private int currentPage;
+        private int nextPage;
 
-        public ImageData(List<String> images, int next_page, int current_page){
+        public ImageData(List<String> images, int nextPage, int currentPage){
 
                 this.images = images;
-                this.next_page = next_page;
-                this.current_page = current_page;
-
+                this.nextPage = nextPage;
+                this.currentPage = currentPage;
         }
 
         public List<String> getImages() {
@@ -24,19 +23,19 @@ public class ImageData {
                 this.images = images;
         }
 
-        public int getCurrent_page() {
-                return current_page;
+        public int getCurrentPage() {
+                return currentPage;
         }
 
-        public void setCurrent_page(int current_page) {
-                this.current_page = current_page;
+        public void setCurrentPage(int currentPage) {
+                this.currentPage = currentPage;
         }
 
-        public int getNext_page() {
-                return next_page;
+        public int getNextPage() {
+                return nextPage;
         }
 
-        public void setNext_page(int next_page) {
-                this.next_page = next_page;
+        public void setNextPage(int nextPage) {
+                this.nextPage = nextPage;
         }
 }
