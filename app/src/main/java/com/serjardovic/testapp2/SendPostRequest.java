@@ -82,15 +82,16 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
             Log.d("ALPHA", "Page is missing");
         } else {
             Log.d("ALPHA", "POST request successful");
+
+            for(String s : resultArray){
+                Log.d("ALPHA", s);
+            }
+
+            List<String> imageData = mApplication.getModel().getImageDataInfo().getImageData().getImages();
+
             if (resultArray[resultArray.length - 4].equals("next_page")) {
 
-                for(String s : resultArray){
-                    Log.d("ALPHA", s);
-                }
-
                 Log.d("ALPHA", "Current page: " + resultArray[resultArray.length - 1] + ", next page: " + resultArray[resultArray.length - 3]);
-
-                List<String> imageData = mApplication.getModel().getImageDataInfo().getImageData().getImages();
 
                 for (int i = 0; i < resultArray.length - 4; i++) {
                     imageData.add(resultArray[i]);
@@ -99,20 +100,21 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                 mApplication.getModel().getImageDataInfo().getImageData().setImages(imageData);
                 mApplication.getModel().getImageDataInfo().getImageData().setCurrentPage(Integer.parseInt(resultArray[resultArray.length - 1]));
                 mApplication.getModel().getImageDataInfo().getImageData().setNextPage(Integer.parseInt(resultArray[resultArray.length - 3]));
-
             } else {
 
-                String[] temp = new String[resultArray.length - 2];
+                for(String s : resultArray){
+                    Log.d("ALPHA", s);
+                }
 
                 Log.d("ALPHA", "Current page: " + resultArray[resultArray.length - 1] + ", last page");
 
                 for (int i = 0; i < resultArray.length - 2; i++) {
-                    temp[i] = resultArray[i];
+                    imageData.add(resultArray[i]);
                 }
 
+                mApplication.getModel().getImageDataInfo().getImageData().setImages(imageData);
                 mApplication.getModel().getImageDataInfo().getImageData().setCurrentPage(Integer.parseInt(resultArray[resultArray.length - 1]));
                 mApplication.getModel().getImageDataInfo().getImageData().setNextPage(0);
-
             }
 
             manageSituation(callback);

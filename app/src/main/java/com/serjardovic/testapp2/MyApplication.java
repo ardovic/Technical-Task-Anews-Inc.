@@ -17,6 +17,7 @@ public class MyApplication extends Application {
     private int numberOfCores;
     private Model model;
     private Adapter adapter;
+    private String currentDownload;
 
     @Override
     public void onCreate() {
@@ -63,5 +64,13 @@ public class MyApplication extends Application {
 
     public int getNumberOfCores() {
         return numberOfCores;
+    }
+
+    public String getCurrentDownload() {
+        return currentDownload;
+    }
+
+    public void setCurrentDownload(String currentDownload) {
+        this.currentDownload = currentDownload;
     }
 }

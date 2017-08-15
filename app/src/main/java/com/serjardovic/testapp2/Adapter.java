@@ -9,7 +9,6 @@ import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-
 import com.serjardovic.testapp2.utils.ImageLoader;
 
 import java.util.List;
@@ -18,26 +17,18 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public MyApplication mApplication;
     public ImageLoader imageLoader;
-    public ImageData imageData;
     public List<String> images;
 
-    public Adapter(ImageData imageData, Callback callback) {
+    public Adapter(ImageDataInfo imageDataInfo, Callback callback) {
         mApplication = (MyApplication) callback.getContext().getApplicationContext();
-        this.imageData = imageData;
         imageLoader = new ImageLoader(mApplication);
-        images = imageData.getImages();
-    }
-
-    public class NormalViewHolder extends ViewHolder {
-        public NormalViewHolder(View itemView) {
-            super(itemView);
-        }
+        images = imageDataInfo.getImageData().getImages();
     }
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
-        return new NormalViewHolder(LayoutInflater.from(parent.getContext())
+        return new ViewHolder(LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.list_item, parent, false));
     }
 
@@ -45,12 +36,22 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         try {
-            NormalViewHolder normalViewHolder = (NormalViewHolder) holder;
-            normalViewHolder.bindView(position);
+            ViewHolder viewHolder = (ViewHolder) holder;
+            viewHolder.bindView(position);
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @Override
@@ -66,30 +67,27 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    @Override
-    public int getItemViewType(int position) {
-        return super.getItemViewType(position);
-    }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
+
         public TextView caption;
         public ImageView imageView;
         public RelativeLayout rl_container;
 
         public ViewHolder(View itemView) {
             super(itemView);
-            setIsRecyclable(false);
+            //setIsRecyclable(false);
+
             // Find view by ID and initialize here
             rl_container = (RelativeLayout) itemView.findViewById(R.id.rl_container);
             caption = (TextView) itemView.findViewById(R.id.caption);
             imageView = (ImageView) itemView.findViewById(R.id.image);
-
         }
 
-        public void bindView(int itemIndex) {
+        public void bindView(int position) {
 
-                caption.setText(images.get(itemIndex));
-                imageLoader.DisplayImage(images.get(itemIndex), imageView);
+                caption.setText(images.get(position));
+                imageLoader.DisplayImage(images.get(position), imageView);
 
                 // set height in proportion to screen size
                 int proportionalHeight = (int) ((double) (2 * mApplication.getDisplayWidth()) / 3);

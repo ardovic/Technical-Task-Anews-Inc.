@@ -32,11 +32,16 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     }
 
     @Override
+    protected void onPreExecute() {}
+
+    @Override
     protected String doInBackground(String... params) {
 
         int itemIndex = Integer.parseInt(params[0]);
 
         String fileName = mApplication.getModel().getImageDataInfo().getImageData().getImages().get(itemIndex);
+
+        mApplication.setCurrentDownload(fileName);
 
         File file = fileCache.getFile(fileName);
 
@@ -74,21 +79,20 @@ class DownloadImages extends AsyncTask<String, Void, String> {
         String fileName = count[1];
         int itemIndex = Integer.parseInt(count[2]);
 
+        mApplication.setCurrentDownload(null);
+
         if (response.contains("Success")) {
 
             getAdapter(callback).notifyItemChanged(itemIndex);
 
+        } else if (response.equals("Error: 404")) {
+            mApplication.getModel().getImageDataInfo().getImageData().getImages().remove(itemIndex);
+            mApplication.getModel().getImageDataInfo().getImageData().getImages().add(itemIndex, fileName + "404");
+            getAdapter(callback).notifyItemChanged(itemIndex);
         } else {
-
-            if (response.equals("Error: 404")) {
-                mApplication.getModel().getImageDataInfo().getImageData().getImages().remove(itemIndex);
-                mApplication.getModel().getImageDataInfo().getImageData().getImages().add(itemIndex, fileName + "404");
-                getAdapter(callback).notifyItemChanged(itemIndex);
-            } else {
-                // TODO
-                // If out of memory, retry downloading the same item
-                //new DownloadImages(callback).execute("" + current_page, "" + item_on_page, "" + app_code);
-            }
+            // TODO
+            // If out of memory, retry downloading the same item
+            //new DownloadImages(callback).execute("" + current_page, "" + item_on_page, "" + app_code);
         }
     }
 
