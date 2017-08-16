@@ -75,10 +75,15 @@ public class MainActivity extends AppCompatActivity implements Callback {
             String imageURL = mApplication.getModel().getDownloadQueue().getFirst();
             if (!mFileManager.isFileInCache(imageURL)) {
                 Log.d("ALPHA", "Downloading image - " + imageURL);
-                new DownloadImages(this).execute(mImages.indexOf(imageURL) + "");
+                if(mImages.indexOf(imageURL) != -1) {
+                    new DownloadImages(this).execute(mImages.indexOf(imageURL) + "");
+                } else {
+                    mApplication.getModel().getDownloadQueue().remove(imageURL);
+                    manageSituation();
+                }
             } else {
                 Log.d("ALPHA", "Image already in cache - " + imageURL);
-                mApplication.getModel().getDownloadQueue().removeFirst();
+                mApplication.getModel().getDownloadQueue().remove(imageURL);
                 manageSituation();
             }
         } else {

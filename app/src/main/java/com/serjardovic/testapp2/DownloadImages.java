@@ -36,15 +36,21 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     }
 
     @Override
-    protected void onPreExecute() {}
+    protected void onPreExecute() {
+    }
 
     @Override
     protected String doInBackground(String... params) {
 
         int itemIndex = Integer.parseInt(params[0]);
 
-        String fileName = mApplication.getModel().getImageDataInfo().getImageData().getImages().get(itemIndex);
+        String fileName;
 
+        if (mApplication.getModel().getDownloadQueue().size() > 0) {
+            fileName = mApplication.getModel().getDownloadQueue().getFirst();
+        } else {
+            return "Error: Concurrency leak" + "*" + "_____" + "*" + itemIndex;
+        }
         mApplication.setCurrentDownload(fileName);
 
         File file = fileManager.getFile(fileName);
@@ -90,10 +96,14 @@ class DownloadImages extends AsyncTask<String, Void, String> {
             getAdapter(callback).notifyItemChanged(itemIndex);
 
         } else if (response.equals("Error: 404")) {
-            if(!fileName.substring(0, 3).equals("404")) {
+            if (!fileName.substring(0, 3).equals("404")) {
                 mApplication.getModel().getImageDataInfo().getImageData().getImages().set(itemIndex, "404" + fileName);
             }
             getAdapter(callback).notifyItemChanged(itemIndex);
+        } else if (response.equals("Error: Concurrency leak")) {
+
+            Log.d("ALPHA", "Bypassed file: " + mApplication.getModel().getImageDataInfo().getImageData().getImages().get(itemIndex));
+
         } else {
             // TODO
             // If out of memory, retry downloading the same item
@@ -109,6 +119,7 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     private Adapter getAdapter(Callback callback) {
         return callback.getAdapter();
     }
+
     private void manageSituation(Callback callback) {
         callback.manageSituation();
     }
