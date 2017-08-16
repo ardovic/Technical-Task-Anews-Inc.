@@ -65,13 +65,15 @@ public class ImageLoader {
         if (b != null) {
             return b;
         } else {
-            if(!fileManager.isFileReady(imageURL)) {
+            if(!fileManager.isFileReady(imageURL) && !myApplication.getModel().getDownloadQueue().contains(imageURL) && !myApplication.getCurrentDownload().equals(imageURL)) {
 
                 Log.d("ALPHA", "File added to priority queue for re-download: " + imageURL);
                 // Add URL to priority
                 myApplication.getModel().getDownloadQueue().addFirst(imageURL);
                 manageSituation(callback);
 
+            } else if (!fileManager.isFileReady(imageURL)){
+                manageSituation(callback);
             }
         }
 

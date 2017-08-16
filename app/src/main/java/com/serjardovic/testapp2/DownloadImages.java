@@ -112,7 +112,7 @@ class DownloadImages extends AsyncTask<String, Void, String> {
 
         mApplication.getModel().getDownloadQueue().remove(fileName);
 
-        manageSituation(callback);
+        //manageSituation(callback);
 
     }
 

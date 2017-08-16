@@ -68,6 +68,17 @@ public class MainActivity extends AppCompatActivity implements Callback {
             displayList();
         }
 
+        if(mApplication.getModel().getDownloadQueue().size() > 0) {
+            StringBuilder que = new StringBuilder("Current que: ");
+            for (String item : mApplication.getModel().getDownloadQueue()) {
+
+                String[] parts = item.split("/");
+                String shortItem = parts[parts.length - 1];
+
+                que.append(shortItem + ", ");
+            }
+            Log.d("ALPHA", que.toString().substring(0, que.toString().length() - 2) + ".");
+        }
         // Get the URL of the first image in line for download
         Log.d("ALPHA", "Download queue size: " + mApplication.getModel().getDownloadQueue().size());
 
