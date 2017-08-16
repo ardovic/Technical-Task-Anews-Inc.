@@ -42,8 +42,7 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     @Override
     protected String doInBackground(String... params) {
 
-        int itemIndex = Integer.parseInt(params[0]);
-
+        String itemIndex = params[0];
         String fileName;
 
         if (mApplication.getModel().getDownloadQueue().size() > 0) {
@@ -51,7 +50,8 @@ class DownloadImages extends AsyncTask<String, Void, String> {
         } else {
             return "Error: Concurrency leak" + "*" + "_____" + "*" + itemIndex;
         }
-        mApplication.setCurrentDownload(fileName);
+
+        mApplication.getCurrentDownloadSet().add(fileName);
 
         File file = fileManager.getFile(fileName);
 
@@ -85,21 +85,24 @@ class DownloadImages extends AsyncTask<String, Void, String> {
         Log.d("ALPHA", result);
         String[] count = result.split("\\*");
 
+        int itemIndex;
+
         String response = count[0];
         String fileName = count[1];
-        int itemIndex = Integer.parseInt(count[2]);
+        itemIndex = Integer.parseInt(count[2]);
 
-        mApplication.setCurrentDownload(null);
+
+        mApplication.getCurrentDownloadSet().remove(fileName);
 
         if (response.contains("Success")) {
 
-            getAdapter(callback).notifyItemChanged(itemIndex);
+            mApplication.getAdapter().notifyItemChanged(itemIndex);
 
         } else if (response.equals("Error: 404")) {
             if (!fileName.substring(0, 3).equals("404")) {
                 mApplication.getModel().getImageDataInfo().getImageData().getImages().set(itemIndex, "404" + fileName);
             }
-            getAdapter(callback).notifyItemChanged(itemIndex);
+            mApplication.getAdapter().notifyItemChanged(itemIndex);
         } else if (response.equals("Error: Concurrency leak")) {
 
             Log.d("ALPHA", "Bypassed file: " + mApplication.getModel().getImageDataInfo().getImageData().getImages().get(itemIndex));
@@ -110,9 +113,11 @@ class DownloadImages extends AsyncTask<String, Void, String> {
             //new DownloadImages(callback).execute("" + current_page, "" + item_on_page, "" + app_code);
         }
 
-        mApplication.getModel().getDownloadQueue().remove(fileName);
+            mApplication.getModel().getDownloadQueue().remove(fileName);
 
-        //manageSituation(callback);
+            if(mApplication.getCurrentDownloadSet().isEmpty()) {
+                manageSituation(callback);
+            }
 
     }
 
@@ -123,4 +128,5 @@ class DownloadImages extends AsyncTask<String, Void, String> {
     private void manageSituation(Callback callback) {
         callback.manageSituation();
     }
+
 }

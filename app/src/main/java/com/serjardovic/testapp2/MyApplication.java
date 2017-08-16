@@ -9,7 +9,9 @@ import android.view.WindowManager;
 import com.serjardovic.testapp2.utils.CoreManager;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 public class MyApplication extends Application {
 
@@ -18,13 +20,15 @@ public class MyApplication extends Application {
     private int numberOfCores;
     private Model model;
     private Adapter adapter;
-    private String currentDownload;
+    private Set<String> currentDownloadSet;
     private boolean ready;
 
     @Override
     public void onCreate() {
         super.onCreate();
         model = new Model();
+
+        currentDownloadSet = new HashSet<String>();
 
         model.setImageDataInfo(new ImageDataInfo());
         model.getImageDataInfo().setImageData(new ImageData(new ArrayList<String>(), 1, 0));
@@ -70,12 +74,12 @@ public class MyApplication extends Application {
         return numberOfCores;
     }
 
-    public String getCurrentDownload() {
-        return currentDownload;
+    public Set<String> getCurrentDownloadSet() {
+        return currentDownloadSet;
     }
 
-    public void setCurrentDownload(String currentDownload) {
-        this.currentDownload = currentDownload;
+    public void setCurrentDownloadSet(Set<String> currentDownloadSet) {
+        this.currentDownloadSet = currentDownloadSet;
     }
 
     public boolean isReady() {

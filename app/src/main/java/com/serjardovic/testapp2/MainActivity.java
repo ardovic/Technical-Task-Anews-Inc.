@@ -29,6 +29,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
     public Adapter mAdapter;
     public List<String> mImages;
     public FileManager mFileManager;
+    public DownloadManager mDownloadManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +40,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mApplication = (MyApplication) getApplicationContext();
         mImages = mApplication.getModel().getImageDataInfo().getImageData().getImages();
         mFileManager = FileManager.getFileManager(this);
+        mDownloadManager = DownloadManager.getDownloadManager(this);
 
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
@@ -68,38 +70,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
             displayList();
         }
 
-        if(mApplication.getModel().getDownloadQueue().size() > 0) {
-            StringBuilder que = new StringBuilder("Current que: ");
-            for (String item : mApplication.getModel().getDownloadQueue()) {
-
-                String[] parts = item.split("/");
-                String shortItem = parts[parts.length - 1];
-
-                que.append(shortItem + ", ");
-            }
-            Log.d("ALPHA", que.toString().substring(0, que.toString().length() - 2) + ".");
-        }
-        // Get the URL of the first image in line for download
-        Log.d("ALPHA", "Download queue size: " + mApplication.getModel().getDownloadQueue().size());
-
-        if(!mApplication.getModel().getDownloadQueue().isEmpty()) {
-            String imageURL = mApplication.getModel().getDownloadQueue().getFirst();
-            if (!mFileManager.isFileInCache(imageURL)) {
-                Log.d("ALPHA", "Downloading image - " + imageURL);
-                if(mImages.indexOf(imageURL) != -1) {
-                    new DownloadImages(this).execute(mImages.indexOf(imageURL) + "");
-                } else {
-                    mApplication.getModel().getDownloadQueue().remove(imageURL);
-                    manageSituation();
-                }
-            } else {
-                Log.d("ALPHA", "Image already in cache - " + imageURL);
-                mApplication.getModel().getDownloadQueue().remove(imageURL);
-                manageSituation();
-            }
-        } else {
-            Log.d("ALPHA", "Download queue is empty!");
-        }
+        mDownloadManager.downloadNextItemInQue();
 
         /*
         for (String imageURL : mImages) {
@@ -115,9 +86,11 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
     @Override
     protected void onDestroy() {
-        if (mApplication.getCurrentDownload() != null) {
-            mFileManager.deleteFileFromCache(mApplication.getCurrentDownload());
-            Log.d("ALPHA", "Deleting unfinished download - " + mApplication.getCurrentDownload());
+        if (!mApplication.getCurrentDownloadSet().isEmpty()) {
+            for(String fileName : mApplication.getCurrentDownloadSet()) {
+                mFileManager.deleteFileFromCache(fileName);
+                Log.d("ALPHA", "Deleting unfinished download - " + fileName);
+            }
         }
         super.onDestroy();
     }

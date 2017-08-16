@@ -121,7 +121,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                 mApplication.getModel().getImageDataInfo().getImageData().setNextPage(0);
             }
 
-            if(resultArray[resultArray.length - 1].equals("1")) {
+            if(mApplication.getCurrentDownloadSet().isEmpty()) {
                 manageSituation(callback);
             }
 
