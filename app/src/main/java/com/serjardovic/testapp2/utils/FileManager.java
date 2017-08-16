@@ -53,10 +53,13 @@ public class FileManager {
             } catch (Exception e) {
                 e.printStackTrace();
 
-                Log.d("ALPHA", "File is corrupt: " + fileName);
-                Log.d("ALPHA", "Deleting file from cache: " + fileName);
+                Log.d("ALPHA", "File is corrupt. Deleting from cache: : " + fileName);
 
-                fileCache.getFile(fileName).delete();
+                if(fileCache.getFile(fileName).delete()){
+                    Log.d("ALPHA", "File successfully deleted from cache: " + fileName);
+                } else {
+                    Log.d("ALPHA", "Unable to delete file: " + fileName);
+                }
 
                 return false;
             }
