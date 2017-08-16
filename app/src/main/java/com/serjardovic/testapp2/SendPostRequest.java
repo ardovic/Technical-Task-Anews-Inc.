@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
+import java.util.Queue;
 
 import javax.net.ssl.HttpsURLConnection;
 
@@ -27,12 +28,16 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
         mApplication = (MyApplication) callback.getContext().getApplicationContext();
     }
 
-    protected void onPreExecute() {}
+    protected void onPreExecute() {
+
+        mApplication.setReady(false);
+
+    }
 
     protected String doInBackground(String... args) {
 
         try {
-            URL url = new URL("http://185.158.153.123/images.php");
+            URL url = new URL("http://185.158.153.123/mImages.php");
             JSONObject postDataParams = new JSONObject();
             postDataParams.put("page", Integer.parseInt(args[0]));
             Log.d("ALPHA", "Posting parameters to server: " + postDataParams.toString());
@@ -88,6 +93,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
             }
 
             List<String> imageData = mApplication.getModel().getImageDataInfo().getImageData().getImages();
+            Queue<String> downloadQueue = mApplication.getModel().getDownloadQueue();
 
             if (resultArray[resultArray.length - 4].equals("next_page")) {
 
@@ -95,6 +101,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
 
                 for (int i = 0; i < resultArray.length - 4; i++) {
                     imageData.add(resultArray[i]);
+                    downloadQueue.add(resultArray[i]);
                 }
 
                 mApplication.getModel().getImageDataInfo().getImageData().setImages(imageData);
@@ -102,14 +109,11 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                 mApplication.getModel().getImageDataInfo().getImageData().setNextPage(Integer.parseInt(resultArray[resultArray.length - 3]));
             } else {
 
-                for(String s : resultArray){
-                    Log.d("ALPHA", s);
-                }
-
                 Log.d("ALPHA", "Current page: " + resultArray[resultArray.length - 1] + ", last page");
 
                 for (int i = 0; i < resultArray.length - 2; i++) {
                     imageData.add(resultArray[i]);
+                    downloadQueue.add(resultArray[i]);
                 }
 
                 mApplication.getModel().getImageDataInfo().getImageData().setImages(imageData);
@@ -117,11 +121,15 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
                 mApplication.getModel().getImageDataInfo().getImageData().setNextPage(0);
             }
 
-            manageSituation(callback);
+            if(resultArray[resultArray.length - 1].equals("1")) {
+                manageSituation(callback);
+            }
 
             if(mApplication.getAdapter() != null) {
                 mApplication.getAdapter().notifyItemChanged(mApplication.getModel().getImageDataInfo().getImageData().getImages().size()-1);
             }
+
+            mApplication.setReady(true);
         }
     }
 

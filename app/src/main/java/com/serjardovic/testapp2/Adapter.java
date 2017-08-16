@@ -21,7 +21,7 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public Adapter(ImageDataInfo imageDataInfo, Callback callback) {
         mApplication = (MyApplication) callback.getContext().getApplicationContext();
-        imageLoader = new ImageLoader(mApplication);
+        imageLoader = new ImageLoader(callback);
         images = imageDataInfo.getImageData().getImages();
     }
 
@@ -86,13 +86,17 @@ public class Adapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         public void bindView(int position) {
 
+            if (images.get(position).substring(0, 3).equals("404")) {
+                caption.setText(images.get(position).substring(3));
+            } else {
                 caption.setText(images.get(position));
-                imageLoader.DisplayImage(images.get(position), imageView);
-
-                // set height in proportion to screen size
-                int proportionalHeight = (int) ((double) (2 * mApplication.getDisplayWidth()) / 3);
-                TableRow.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, proportionalHeight);
-                rl_container.setLayoutParams(params);
             }
+            imageLoader.DisplayImage(images.get(position), imageView);
+
+            // set height in proportion to screen size
+            int proportionalHeight = (int) ((double) (2 * mApplication.getDisplayWidth()) / 3);
+            TableRow.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, proportionalHeight);
+            rl_container.setLayoutParams(params);
         }
     }
+}

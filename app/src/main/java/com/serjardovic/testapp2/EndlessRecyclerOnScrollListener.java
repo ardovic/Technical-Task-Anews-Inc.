@@ -5,8 +5,9 @@ import android.support.v7.widget.RecyclerView;
 
 public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScrollListener {
 
+    public MyApplication mApplication;
     private int previousTotal = 0; // The total number of items in the dataset after the last load
-    private boolean loading = true; // True if we are still waiting for the last set of data to load.
+    //private boolean loading = true; // True if we are still waiting for the last set of data to load.
     private int visibleThreshold = 2; // The minimum amount of items to have below your current scroll position before loading more.
     int firstVisibleItem, visibleItemCount, totalItemCount;
 
@@ -15,6 +16,7 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
 
     public EndlessRecyclerOnScrollListener(LinearLayoutManager linearLayoutManager, Callback callback) {
         this.mLinearLayoutManager = linearLayoutManager;
+        mApplication = (MyApplication) callback.getContext().getApplicationContext();
     }
 
     @Override
@@ -25,24 +27,26 @@ public abstract class EndlessRecyclerOnScrollListener extends RecyclerView.OnScr
         totalItemCount = mLinearLayoutManager.getItemCount();
         firstVisibleItem = mLinearLayoutManager.findFirstVisibleItemPosition();
 
-        if (loading) {
+        if (!mApplication.isReady()) {
 
             if (totalItemCount > previousTotal) {
 
-                loading = false;
+                //loading = false;
                 previousTotal = totalItemCount;
             }
         }
 
-        if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+        if (mApplication.isReady() && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
             // End has been reached
 
             onLoadMore();
 
-            loading = true;
+            //loading = true;
 
         }
     }
+
+
 
     public abstract void onLoadMore();
 }

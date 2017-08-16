@@ -1,11 +1,12 @@
 package com.serjardovic.testapp2.utils;
 
 import android.app.Activity;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.widget.ImageView;
 
+import com.serjardovic.testapp2.Callback;
 import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.R;
 
@@ -20,24 +21,24 @@ import java.util.concurrent.Executors;
 
 public class ImageLoader {
 
-    private MyApplication mApplication;
+    private FileManager fileManager;
+    private MyApplication myApplication;
     private MemoryCache memoryCache = new MemoryCache();
-    private Context context;
-    private FileCache fileCache;
+    private Callback callback;
     private Map<ImageView, String> imageViews = Collections.synchronizedMap(new WeakHashMap<ImageView, String>());
     private ExecutorService executorService;
 
-    public ImageLoader(Context context) {
-        mApplication = (MyApplication) context.getApplicationContext();
-        this.context = context;
-        fileCache = new FileCache(context);
-        executorService = Executors.newFixedThreadPool(mApplication.getNumberOfCores() - 1);
+    public ImageLoader(Callback callback) {
+        myApplication = (MyApplication) callback.getContext().getApplicationContext();
+        this.callback = callback;
+        fileManager = FileManager.getFileManager(callback.getContext());
+        executorService = Executors.newFixedThreadPool(myApplication.getNumberOfCores() - 1);
     }
 
     public void DisplayImage(String url, ImageView imageView) {
-        if (url.substring(url.length() - 3).equals("404")) {
+        if (url.substring(0, 3).equals("404")) {
             imageViews.put(imageView, "404");
-            Bitmap bm = BitmapFactory.decodeResource(context.getResources(), R.drawable.error404);
+            Bitmap bm = BitmapFactory.decodeResource(callback.getContext().getResources(), R.drawable.error404);
             imageView.setImageBitmap(bm);
         } else {
             imageViews.put(imageView, url);
@@ -51,46 +52,28 @@ public class ImageLoader {
     }
 
     private void queuePhoto(String url, ImageView imageView) {
+
         PhotoToLoad p = new PhotoToLoad(url, imageView);
         executorService.submit(new PhotosLoader(p));
     }
 
-    private Bitmap getBitmap(String url) {
-        File f = fileCache.getFile(url);
+    private Bitmap getBitmap(String imageURL) {
+        File f = fileManager.getFile(imageURL);
 
         //from SD cache
         Bitmap b = decodeFile(f);
         if (b != null) {
             return b;
+        } else {
+            if(!fileManager.isFileReady(imageURL) && !myApplication.getModel().getDownloadQueue().contains(imageURL)) {
+
+                Log.d("ALPHA", "Need to re-download file: " + imageURL);
+                myApplication.getModel().getDownloadQueue().addFirst(imageURL);
+                manageSituation(callback);
+
+            }
         }
 
-
-
-
-        /*
-        //from web
-        try {
-            Log.d("ALPHA", "Secondary error found. Re-downloading image: " + url);
-            Bitmap bitmap;
-            URL imageUrl = new URL(url);
-            HttpURLConnection conn = (HttpURLConnection)imageUrl.openConnection();
-            conn.setConnectTimeout(30000);
-            conn.setReadTimeout(30000);
-            conn.setInstanceFollowRedirects(true);
-            InputStream is=conn.getInputStream();
-            OutputStream os = new FileOutputStream(f);
-            Utils.CopyStream(is, os);
-            os.close();
-            bitmap = decodeFile(f);
-            return bitmap;
-        } catch (Throwable ex){
-            Log.d("ALPHA", "Error re-downloading image: " + ex);
-            ex.printStackTrace();
-            if(ex instanceof OutOfMemoryError)
-                memoryCache.clear();
-            return null;
-        }
-        */
         return null;
     }
 
@@ -106,7 +89,7 @@ public class ImageLoader {
             //o.outHeight = 2 * (o.outWidth / 3);
 
             //Find the correct scale value. It should be the power of 2.
-            final int REQUIRED_SIZE = mApplication.getDisplayWidth() / 2;
+            final int REQUIRED_SIZE = myApplication.getDisplayWidth() / 2;
             int width_tmp = o.outWidth, height_tmp = o.outHeight;
             int scale = 1;
 
@@ -184,5 +167,9 @@ public class ImageLoader {
             }
 
         }
+    }
+
+    private void manageSituation(Callback callback) {
+        callback.manageSituation();
     }
 }
