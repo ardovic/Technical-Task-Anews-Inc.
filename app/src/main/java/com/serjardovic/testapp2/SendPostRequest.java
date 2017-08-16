@@ -37,7 +37,7 @@ class SendPostRequest extends AsyncTask<String, Void, String> {
     protected String doInBackground(String... args) {
 
         try {
-            URL url = new URL("http://185.158.153.123/mImages.php");
+            URL url = new URL("http://185.158.153.123/images.php");
             JSONObject postDataParams = new JSONObject();
             postDataParams.put("page", Integer.parseInt(args[0]));
             Log.d("ALPHA", "Posting parameters to server: " + postDataParams.toString());
