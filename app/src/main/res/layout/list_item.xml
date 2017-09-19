@@ -2,28 +2,33 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rl_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_height="wrap_content" />
+    android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/image"
+        android:id="@+id/iv_image"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:scaleType="centerCrop"/>
+        android:scaleType="centerCrop" />
 
     <TextView
-        android:textColor="@color/colorWhite"
-        android:gravity="center"
-        android:id="@+id/caption"
+        android:id="@+id/tv_caption"
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:textSize="16dp"
-        android:background="@color/colorShadow"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:background="@color/colorShadow"
+        android:gravity="center"
+        android:textColor="@color/colorWhite"
+        android:textSize="16dp" />
+
+    <ProgressBar
+        android:id="@+id/pb_progress"
+        android:max="100"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/tv_caption"
+        android:indeterminate="true"
+        android:visibility="visible" />
 
 </RelativeLayout>

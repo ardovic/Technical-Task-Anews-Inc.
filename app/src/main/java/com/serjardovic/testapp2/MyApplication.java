@@ -1,45 +1,40 @@
 package com.serjardovic.testapp2;
 
+import android.app.Activity;
 import android.app.Application;
 import android.graphics.Point;
-import android.util.Log;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.serjardovic.testapp2.utils.CoreManager;
-
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.Set;
+import com.serjardovic.testapp2.model.CoreManager;
+import com.serjardovic.testapp2.model.Model;
 
 public class MyApplication extends Application {
+
+    private Model model;
+
+    private Callback callback;
 
     private int displayWidth;
     private int displayHeight;
     private int numberOfCores;
-    private Model model;
-    private Adapter adapter;
-    private Set<String> currentDownloadSet;
-    private boolean ready;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        model = new Model();
 
-        currentDownloadSet = new HashSet<String>();
+        model = new Model(this);
 
-        model.setImageDataInfo(new ImageDataInfo());
-        model.getImageDataInfo().setImageData(new ImageData(new ArrayList<String>(), 1, 0));
-        model.setDownloadQueue(new LinkedList<String>());
+        WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+        Display display = windowManager.getDefaultDisplay();
+        Point point = new Point();
+        display.getSize(point);
+        displayWidth = point.x;
+        displayHeight = point.y;
+        L.d("Device screen resolution: " + displayWidth + " x " + displayHeight);
 
         numberOfCores = CoreManager.getNumberOfCores();
-
-        Log.d("ALPHA", "Number of cores available on the device: " + numberOfCores);
-
-        ready = false;
-
+        L.d("Number of cores available on the device: " + numberOfCores);
     }
 
     public Model getModel() {
@@ -54,39 +49,15 @@ public class MyApplication extends Application {
         return displayHeight;
     }
 
-    public void setDisplayWidth(int displayWidth) {
-        this.displayWidth = displayWidth;
-    }
-
-    public void setDisplayHeight(int displayHeight) {
-        this.displayHeight = displayHeight;
-    }
-
-    public Adapter getAdapter() {
-        return adapter;
-    }
-
-    public void setAdapter(Adapter adapter) {
-        this.adapter = adapter;
-    }
-
     public int getNumberOfCores() {
         return numberOfCores;
     }
 
-    public Set<String> getCurrentDownloadSet() {
-        return currentDownloadSet;
+    public void setCallback(Callback callback) {
+        this.callback = callback;
     }
 
-    public void setCurrentDownloadSet(Set<String> currentDownloadSet) {
-        this.currentDownloadSet = currentDownloadSet;
-    }
-
-    public boolean isReady() {
-        return ready;
-    }
-
-    public void setReady(boolean ready) {
-        this.ready = ready;
+    public Callback getCallback() {
+        return callback;
     }
 }

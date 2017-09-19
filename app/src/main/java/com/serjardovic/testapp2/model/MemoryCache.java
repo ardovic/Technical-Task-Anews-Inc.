@@ -1,7 +1,9 @@
-package com.serjardovic.testapp2.utils;
+package com.serjardovic.testapp2.model;
 
 import android.graphics.Bitmap;
 import android.util.Log;
+
+import com.serjardovic.testapp2.L;
 
 import java.util.Collections;
 import java.util.Iterator;
@@ -24,7 +26,7 @@ public class MemoryCache {
 
     public void setLimit(long new_limit) {
         limit = new_limit;
-        Log.i(TAG, "MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
+        L.d("MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
     }
 
     public Bitmap get(String id) {

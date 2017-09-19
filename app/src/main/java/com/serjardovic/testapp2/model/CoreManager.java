@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2.utils;
+package com.serjardovic.testapp2.model;
 
 import android.os.Build;
 
