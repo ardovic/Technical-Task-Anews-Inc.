@@ -24,7 +24,6 @@
     <ProgressBar
         android:id="@+id/pb_progress"
         android:max="100"
-        style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/tv_caption"

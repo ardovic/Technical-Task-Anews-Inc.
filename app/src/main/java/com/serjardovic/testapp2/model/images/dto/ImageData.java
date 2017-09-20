@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2.model;
+package com.serjardovic.testapp2.model.images.dto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +11,7 @@ public class ImageData {
     private int nextPage;
 
     public ImageData() {
-        allImages = new ArrayList<>();
-        downloadedImages = new ArrayList<>();
-        currentPage = 0;
-        nextPage = 1;
+
     }
 
     public List<String> getAllImages() {

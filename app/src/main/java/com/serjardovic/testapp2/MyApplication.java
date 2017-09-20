@@ -1,30 +1,30 @@
 package com.serjardovic.testapp2;
 
-import android.app.Activity;
 import android.app.Application;
 import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.serjardovic.testapp2.model.CoreManager;
+import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.model.Model;
+import com.serjardovic.testapp2.utils.L;
 
 public class MyApplication extends Application {
 
     private Model model;
 
-    private Callback callback;
-
     private int displayWidth;
     private int displayHeight;
     private int numberOfCores;
+
+    private static MyApplication instance;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
-        model = new Model(this);
-
+        model = new Model();
+        instance = this;
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         Point point = new Point();
@@ -35,6 +35,10 @@ public class MyApplication extends Application {
 
         numberOfCores = CoreManager.getNumberOfCores();
         L.d("Number of cores available on the device: " + numberOfCores);
+    }
+
+    public static MyApplication getInstance() {
+        return instance;
     }
 
     public Model getModel() {
@@ -51,13 +55,5 @@ public class MyApplication extends Application {
 
     public int getNumberOfCores() {
         return numberOfCores;
-    }
-
-    public void setCallback(Callback callback) {
-        this.callback = callback;
-    }
-
-    public Callback getCallback() {
-        return callback;
     }
 }

@@ -1,9 +1,7 @@
-package com.serjardovic.testapp2.model;
+package com.serjardovic.testapp2.utils;
 
 import android.graphics.Bitmap;
 import android.util.Log;
-
-import com.serjardovic.testapp2.L;
 
 import java.util.Collections;
 import java.util.Iterator;

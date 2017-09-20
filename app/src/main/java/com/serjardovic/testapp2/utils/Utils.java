@@ -1,10 +1,10 @@
-package com.serjardovic.testapp2.model;
+package com.serjardovic.testapp2.utils;
 
 import java.io.InputStream;
 import java.io.OutputStream;
 
-class Utils {
-    static void CopyStream(InputStream inputStream, OutputStream outputStream) {
+public class Utils {
+    public static void CopyStream(InputStream inputStream, OutputStream outputStream) {
         final int bufferSize = 2048;
         try {
             byte[] bytes = new byte[bufferSize];

@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2.model;
+package com.serjardovic.testapp2.utils;
 
 import android.app.Application;
 import android.content.Context;

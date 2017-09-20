@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2;
+package com.serjardovic.testapp2.utils;
 
 import android.content.Context;
 import android.util.Log;

@@ -1,12 +1,12 @@
-package com.serjardovic.testapp2.model;
+package com.serjardovic.testapp2.network;
 
 import android.app.Application;
 import android.os.AsyncTask;
 
-import com.serjardovic.testapp2.Callback;
-import com.serjardovic.testapp2.L;
-import com.serjardovic.testapp2.MainActivity;
+import com.serjardovic.testapp2.utils.L;
 import com.serjardovic.testapp2.MyApplication;
+import com.serjardovic.testapp2.utils.FileCache;
+import com.serjardovic.testapp2.utils.Utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -17,16 +17,12 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
-class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
+public class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
 
     private FileCache fileCache;
-    private MyApplication application;
 
     DownloadImageAsyncTask(Application application) {
-        this.application = (MyApplication) application;
         fileCache = new FileCache(application);
     }
 
@@ -50,7 +46,7 @@ class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
                     File file = fileCache.getFile(imageURL);
                     if (file.exists()) {
                         L.d("File already in cache: " + imageURL);
-                        application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add(imageURL);
+//                        application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add(imageURL);
                         publishProgress(imageURL);
                         continue;
                     }
@@ -64,12 +60,12 @@ class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
                     Utils.CopyStream(inputStream, outputStream);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
-                    application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add("Image not found: " + imageURL);
-
-                    application.getModel().getImageDataInfo().getImageData().getAllImages()
-                            .add(application.getModel().getImageDataInfo().getImageData().getAllImages().indexOf(imageURL), "Image not found: " + imageURL);
-
-                    application.getModel().getImageDataInfo().getImageData().getAllImages().remove(imageURL);
+//                    application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add("Image not found: " + imageURL);
+//
+//                    application.getModel().getImageDataInfo().getImageData().getAllImages()
+//                            .add(application.getModel().getImageDataInfo().getImageData().getAllImages().indexOf(imageURL), "Image not found: " + imageURL);
+//
+//                    application.getModel().getImageDataInfo().getImageData().getAllImages().remove(imageURL);
                     publishProgress(imageURL);
                     continue;
                 } catch (Exception e) {
@@ -90,7 +86,7 @@ class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
                     }
                 }
                 L.d("File successfully downloaded: " + imageURL);
-                application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add(imageURL);
+//                application.getModel().getImageDataInfo().getImageData().getDownloadedImages().add(imageURL);
                 // TODO Let everybody know that a file was downloaded
                 publishProgress(imageURL);
             }
@@ -102,19 +98,19 @@ class DownloadImageAsyncTask extends AsyncTask<Void, String, Void> {
     @Override
     protected void onProgressUpdate(String... values) {
         super.onProgressUpdate(values);
-        application.getCallback().imageDownloaded(values[0]);
+//        application.getCallback().imageDownloaded(values[0]);
     }
 
     private List<String> imagesToDownload() {
-        List<String> allImages = application.getModel().getImageDataInfo().getImageData().getAllImages();
-        List<String> downloadedImages = application.getModel().getImageDataInfo().getImageData().getDownloadedImages();
+//        List<String> allImages = application.getModel().getImageDataInfo().getImageData().getAllImages();
+//        List<String> downloadedImages = application.getModel().getImageDataInfo().getImageData().getDownloadedImages();
         List<String> imagesToDownload = new ArrayList<>();
 
-        for(String image : allImages) {
-            if(!downloadedImages.contains(image)) {
-                imagesToDownload.add(image);
-            }
-        }
+//        for(String image : allImages) {
+//            if(!downloadedImages.contains(image)) {
+//                imagesToDownload.add(image);
+//            }
+//        }
         return imagesToDownload;
     }
 }

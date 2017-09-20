@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2;
+package com.serjardovic.testapp2.interfaces;
 
 public interface Callback {
 
