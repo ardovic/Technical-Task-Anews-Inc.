@@ -23,6 +23,7 @@ import com.serjardovic.testapp2.utils.FileCache;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Map;
 import java.util.WeakHashMap;
@@ -30,9 +31,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
-    private PageData mPageData;
+    private static final int ITEM_HOLDER = 0;
+    private ArrayList<String> mImages;
     private int mSize;
+    private boolean isFooterEnabled;
 
 //    public ImageLoader imageLoader;
 //    public List<String> allImages;
@@ -40,8 +42,8 @@ public class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 //    public Context context;
 //    public MemoryCache memoryCache;
 
-    public ImagesAdapter(PageData pageData, int size) {
-        mPageData = pageData;
+    public ImagesAdapter(ArrayList<String> images, int size) {
+        mImages = new ArrayList<>(images);
         mSize = size;
 //        this.context = context;
 //        imageLoader = new ImageLoader();
@@ -50,43 +52,58 @@ public class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ViewHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
+        if (viewType == ITEM_HOLDER) {
+            return new ItemHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item, parent, false));
+        } else {
+            return new FooterHolder(LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_footer, parent, false));
+        }
     }
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-
-        try {
-            ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.bindView(mPageData.getImages().get(position));
-
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (holder instanceof ItemHolder) {
+            ItemHolder viewHolder = (ItemHolder) holder;
+            viewHolder.bindView(mImages.get(position));
         }
     }
 
-//    @Override
-//    public int getItemViewType(int position) {
-//        return position;
-//    }
+    @Override
+    public int getItemViewType(int position) {
+        return position == getItemCount() - 1 && isFooterEnabled ? 1 : ITEM_HOLDER;
+    }
+
+    public void isPageLoading(boolean isLoading){
+        isFooterEnabled = isLoading;
+        notifyItemChanged(getItemCount());
+    }
 
     @Override
     public int getItemCount() {
-        return mPageData == null || mPageData.getImages() == null ? 0 : mPageData.getImages().size();
+        return mImages == null ? 0 : isFooterEnabled ? mImages.size() + 1 : mImages.size();
     }
 
-    public void setData(PageData pageData) {
-        mPageData = pageData;
+    public void setData(ArrayList<String> images) {
+        int oldItemCount = getItemCount();
+        mImages.addAll(images);
+        notifyItemRangeInserted(oldItemCount - 1, getItemCount() - oldItemCount);
+
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class FooterHolder extends RecyclerView.ViewHolder {
+
+        public FooterHolder(View itemView) {
+            super(itemView);
+        }
+    }
+
+    public class ItemHolder extends RecyclerView.ViewHolder {
 
         public TextView textViewCaption;
         public ImageView imageViewPicture;
 
 //        public ProgressBar pbProgress;
 
-        public ViewHolder(View itemView) {
+        public ItemHolder(View itemView) {
             super(itemView);
 
             // Find view by ID and initialize here
@@ -98,7 +115,6 @@ public class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         }
 
         public void bindView(String imageUrl) {
-
             textViewCaption.setText(imageUrl);
 //
 //            if (downloadedImages.contains(allImages.get(position))) {

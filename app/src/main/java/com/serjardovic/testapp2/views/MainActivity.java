@@ -4,6 +4,7 @@ import android.content.res.Configuration;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -45,10 +46,22 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
+        mRecyclerView.addOnScrollListener(mRecyclerScrollListener);
         mProgressBar.setVisibility(View.GONE);
 
     }
+
+    private RecyclerView.OnScrollListener mRecyclerScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            int position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
+            int updatePosition = recyclerView.getAdapter().getItemCount() - 2;
+            if (position >= updatePosition && !mPageInfo.isUpdating() && mPageInfo.getPageData().hasNextPage()) {
+                mImagesAdapter.isPageLoading(true);
+                mPageInfo.getListImagesByPage();
+            }
+        }
+    };
 
     @Override
     protected void onResume() {
@@ -56,6 +69,7 @@ public class MainActivity extends AppCompatActivity implements Callback {
         mPageInfo.setNetworkListener(mPageListener);
         if (mPageInfo.getPageData() == null && !mPageInfo.isUpdating()) {
             mPageInfo.getListImagesByPage();
+
         }
 
     }
@@ -97,11 +111,12 @@ public class MainActivity extends AppCompatActivity implements Callback {
                 } else {
                     height = (int) ((double) (2 * MyApplication.getInstance().getDisplayHeight()) / 3);
                 }
-                mImagesAdapter = new ImagesAdapter(data, height);
+                mImagesAdapter = new ImagesAdapter(data.getImages(), height);
                 mRecyclerView.setAdapter(mImagesAdapter);
                 mProgressBar.setVisibility(View.GONE);
             } else {
-                mImagesAdapter.setData(data);
+                mImagesAdapter.isPageLoading(false);
+                mImagesAdapter.setData(data.getImages());
 
             }
 
@@ -110,6 +125,9 @@ public class MainActivity extends AppCompatActivity implements Callback {
 
         @Override
         public void onError(String error) {
+            if (mImagesAdapter != null) {
+                mImagesAdapter.isPageLoading(false);
+            }
             L.d("onError");
         }
     };

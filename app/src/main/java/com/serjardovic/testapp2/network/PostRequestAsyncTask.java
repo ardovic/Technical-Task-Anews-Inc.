@@ -113,7 +113,10 @@ public class PostRequestAsyncTask extends AsyncTask<Integer, Void, PageWrapper> 
         try {
             JSONObject json = new JSONObject(unparsedJSONPage);
             int currentPage = json.getInt("current_page");
-            int nextPage = json.getInt("next_page");
+            int nextPage = -1;
+            if (json.has("next_page")){
+                nextPage = json.getInt("next_page");
+            }
             JSONArray jsonArray = json.getJSONArray("images");
             ArrayList<String> images = new ArrayList<>();
             for (int i = 0; i < jsonArray.length(); i++) {

@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PageData {
-    private List<String> images = new ArrayList<>();
+    private ArrayList<String> images = new ArrayList<>();
     private int currentPage;
     private int nextPage;
 
 
-    public List<String> getImages() {
+    public ArrayList<String> getImages() {
         return images;
     }
 
@@ -33,5 +33,14 @@ public class PageData {
         this.nextPage = nextPage;
     }
 
+    public void updateData(PageData data) {
+        setNextPage(data.getNextPage());
+        setCurrentPage(data.getCurrentPage());
+        addImages(data.getImages());
+    }
 
+
+    public boolean hasNextPage() {
+        return getNextPage() >= 0;
+    }
 }
