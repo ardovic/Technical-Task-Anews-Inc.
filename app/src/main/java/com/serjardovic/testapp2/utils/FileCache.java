@@ -8,32 +8,41 @@ import java.io.File;
 
 public class FileCache {
 
-    private File cacheDir;
+    private static FileCache instance;
 
-    public FileCache(Application application){
+    private File cacheDirectory;
+
+    private FileCache(Context context) {
         //Find the dir to save cached mImages
         if (Environment.getExternalStorageState().equals(Environment.MEDIA_UNMOUNTED))
-            cacheDir=new File(Environment.getExternalStorageDirectory(),"TTImages_cache");
+            cacheDirectory = new File(Environment.getExternalStorageDirectory(), "TTImages_cache");
         else
-            cacheDir=application.getApplicationContext().getCacheDir();
-        if(!cacheDir.exists())
-            cacheDir.mkdirs();
+            cacheDirectory = context.getCacheDir();
+        if (!cacheDirectory.exists())
+            cacheDirectory.mkdirs();
     }
 
-    public File getFile(String url){
+    public static FileCache getInstance(Context context) {
+        if (instance == null) {
+            instance = new FileCache(context);
+        }
+        return instance;
+    }
+
+    public File getFile(String url) {
         //I identify mImages by hashcode. Not a perfect solution, good for the demo.
-        String filename=String.valueOf(url.hashCode());
+        String filename = String.valueOf(url.hashCode());
         //Another possible solution (thanks to grantland)
         //String filename = URLEncoder.encode(url);
-        return new File(cacheDir, filename);
+        return new File(cacheDirectory, filename);
 
     }
 
-    public void clear(){
-        File[] files=cacheDir.listFiles();
-        if(files==null)
+    public void clear() {
+        File[] files = cacheDirectory.listFiles();
+        if (files == null)
             return;
-        for(File f:files)
+        for (File f : files)
             f.delete();
     }
 

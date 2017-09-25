@@ -8,7 +8,7 @@ public class Utils {
         final int bufferSize = 2048;
         try {
             byte[] bytes = new byte[bufferSize];
-            for (; ; ) {
+            for (;;) {
                 int count = inputStream.read(bytes, 0, bufferSize);
                 if (count == -1)
                     break;

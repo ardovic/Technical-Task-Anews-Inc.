@@ -11,20 +11,24 @@ import java.util.Map.Entry;
 
 public class MemoryCache {
 
+    private static MemoryCache instance;
+
     private static final String TAG = "MemoryCache";
     private Map<String, Bitmap> cache = Collections.synchronizedMap(
             new LinkedHashMap<String, Bitmap>(10, 1.5f, true));//Last argument true for LRU ordering
     private long size = 0;//current allocated size
     private long limit = 1000000;//max memory in bytes
 
-    public MemoryCache() {
+    private MemoryCache() {
         //use 50% of available heap size
         setLimit(Runtime.getRuntime().maxMemory() / 2);
     }
 
-    public void setLimit(long new_limit) {
-        limit = new_limit;
-        L.d("MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
+    public static MemoryCache getInstance() {
+        if (instance == null) {
+            instance = new MemoryCache();
+        }
+        return instance;
     }
 
     public Bitmap get(String id) {
@@ -50,6 +54,15 @@ public class MemoryCache {
         }
     }
 
+    public void clear() {
+        try {
+            cache.clear();
+            size = 0;
+        } catch (NullPointerException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     private void checkSize() {
         Log.i(TAG, "cache size=" + size + " length=" + cache.size());
         if (size > limit) {
@@ -64,19 +77,13 @@ public class MemoryCache {
             Log.i(TAG, "Clean cache. New size " + cache.size());
         }
     }
-
-    public void clear() {
-        try {
-            cache.clear();
-            size = 0;
-        } catch (NullPointerException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    long getSizeInBytes(Bitmap bitmap) {
+    private long getSizeInBytes(Bitmap bitmap) {
         if (bitmap == null)
             return 0;
         return bitmap.getRowBytes() * bitmap.getHeight();
+    }
+    private void setLimit(long new_limit) {
+        limit = new_limit;
+        L.d("MemoryCache will use up to " + limit / 1024. / 1024. + "MB");
     }
 }

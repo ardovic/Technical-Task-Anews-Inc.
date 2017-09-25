@@ -1,5 +1,7 @@
 package com.serjardovic.testapp2.model.images;
 
+import android.os.AsyncTask;
+
 import com.serjardovic.testapp2.interfaces.NetworkListener;
 import com.serjardovic.testapp2.model.images.dto.PageData;
 import com.serjardovic.testapp2.network.PostRequestAsyncTask;
@@ -11,9 +13,7 @@ public class PageInfo implements NetworkListener<PageData> {
     private PageData mPageData;
 
 
-    public PageInfo() {
-
-    }
+    public PageInfo() {}
 
     public void setNetworkListener(NetworkListener<PageData> listener){
         mListener = listener;
@@ -29,7 +29,7 @@ public class PageInfo implements NetworkListener<PageData> {
 
     public void getListImagesByPage() {
         mIsUpdating = true;
-        new PostRequestAsyncTask(this).execute(mPageData == null ? 1 : mPageData.getNextPage());
+        new PostRequestAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mPageData == null ? 1 : mPageData.getNextPage());
     }
 
     @Override

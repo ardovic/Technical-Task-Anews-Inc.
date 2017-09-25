@@ -40,7 +40,6 @@ public class PostRequestAsyncTask extends AsyncTask<Integer, Void, PageWrapper> 
         OutputStream outputStream = null;
         BufferedWriter bufferedWriter = null;
         BufferedReader bufferedReader = null;
-        PageWrapper pageWrapper = null;
 
         try {
             URL url = new URL("http://185.158.153.123/images.php");
