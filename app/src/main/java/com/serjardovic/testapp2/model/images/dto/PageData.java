@@ -39,6 +39,15 @@ public class PageData {
         addImages(data.getImages());
     }
 
+    public void changeImageName(String oldName, String newName) {
+        if(images.contains(oldName)) {
+            for(int i = 0; i < images.size(); i++) {
+                if(images.get(i).equals(oldName)) {
+                    images.set(i, newName);
+                }
+            }
+        }
+    }
 
     public boolean hasNextPage() {
         return getNextPage() >= 0;

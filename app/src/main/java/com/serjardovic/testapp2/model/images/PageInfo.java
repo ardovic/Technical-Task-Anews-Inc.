@@ -12,10 +12,9 @@ public class PageInfo implements NetworkListener<PageData> {
     private NetworkListener<PageData> mListener;
     private PageData mPageData;
 
-
     public PageInfo() {}
 
-    public void setNetworkListener(NetworkListener<PageData> listener){
+    public void setNetworkListener(NetworkListener<PageData> listener) {
         mListener = listener;
     }
 
@@ -36,16 +35,15 @@ public class PageInfo implements NetworkListener<PageData> {
     public void onSuccess(PageData data) {
         mIsUpdating = false;
         mListener.onSuccess(data);
-        if (mPageData == null){
+        if (mPageData == null) {
             mPageData = data;
-        }else {
+        } else {
             mPageData.updateData(data);
         }
-
     }
 
     @Override
-    public void onError(String error) {
+    public void onError(String... error) {
         mIsUpdating = false;
         mListener.onError(error);
     }

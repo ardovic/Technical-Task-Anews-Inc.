@@ -15,6 +15,7 @@ import com.serjardovic.testapp2.interfaces.NetworkListener;
 import com.serjardovic.testapp2.model.images.PageInfo;
 import com.serjardovic.testapp2.model.images.dto.PageData;
 import com.serjardovic.testapp2.network.DownloadImageAsyncTask;
+import com.serjardovic.testapp2.utils.FileCache;
 import com.serjardovic.testapp2.utils.L;
 
 import java.util.ArrayList;
@@ -53,12 +54,22 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             int lastPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
             int firstPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
 
-            if(firstPosition > -1 && firstPosition < mPageInfo.getPageData().getImages().size()) {
-                MyApplication.getInstance().addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
+            if (firstPosition > -1 && firstPosition < mPageInfo.getPageData().getImages().size()) {
+                if (!mPageInfo.getPageData().getImages().get(firstPosition).contains("File not found")
+                        && !FileCache.getInstance(MainActivity.this).getFile(mPageInfo.getPageData().getImages().get(firstPosition)).exists()) {
+                    if (MyApplication.getInstance().downloadQueue.size() > 0) {
+                        if (!MyApplication.getInstance().downloadQueue.get(0).equals(mPageInfo.getPageData().getImages().get(firstPosition))) {
+                            MyApplication.getInstance().addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
+                        }
+                    } else {
+                        MyApplication.getInstance().addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
+                    }
+                }
             }
             int updatePosition = recyclerView.getAdapter().getItemCount() - 2;
 
             if (lastPosition >= updatePosition && !mPageInfo.isUpdating() && mPageInfo.getPageData().hasNextPage()) {
+
                 mImagesAdapter.isPageLoading(true);
                 mPageInfo.getListImagesByPage();
             }
@@ -75,7 +86,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             mPageInfo.getListImagesByPage();
         }
 
-        if(mPageInfo.getPageData() != null) {
+        if (mPageInfo.getPageData() != null) {
 
             int imageHeight;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -90,7 +101,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
 
         }
 
-        if(!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
+        if (!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
             MyApplication.getInstance().downloadActive = true;
             new DownloadImageAsyncTask(MainActivity.this, MainActivity.this).execute(MyApplication.getInstance().downloadQueue.get(0));
         }
@@ -106,7 +117,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
         @Override
         public void onSuccess(PageData data) {
 
-            for(String imageURL : data.getImages()) {
+            for (String imageURL : data.getImages()) {
                 MyApplication.getInstance().addImageToQueueEnd(imageURL);
             }
 
@@ -125,7 +136,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
                 mImagesAdapter.setData(data.getImages());
             }
 
-            if(!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
+            if (!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
                 MyApplication.getInstance().downloadActive = true;
                 new DownloadImageAsyncTask(MainActivity.this, MainActivity.this).execute(MyApplication.getInstance().downloadQueue.get(0));
             }
@@ -133,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
         }
 
         @Override
-        public void onError(String error) {
+        public void onError(String... error) {
             if (mImagesAdapter != null) {
                 mImagesAdapter.isPageLoading(false);
             }
@@ -145,7 +156,6 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
     public void onSuccess(String imageURL) {
 
         MyApplication.getInstance().downloadActive = false;
-
         MyApplication.getInstance().removeImageFromQueue(imageURL);
 
         List<Integer> indices = new ArrayList<>();
@@ -158,14 +168,32 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             mImagesAdapter.notifyItemChanged(i);
         }
 
-        if(!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
+        if (!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
             MyApplication.getInstance().downloadActive = true;
             new DownloadImageAsyncTask(this, this).execute(MyApplication.getInstance().downloadQueue.get(0));
         }
     }
 
     @Override
-    public void onError(String error) {}
+    public void onError(String... error) {
 
+        MyApplication.getInstance().downloadActive = false;
+        MyApplication.getInstance().removeImageFromQueue(error[0]);
+
+        if (error.length > 1 && error[1].equals("File not found")) {
+            mPageInfo.getPageData().changeImageName(error[0], error[1] + ": " + error[0]);
+
+            for (int i = 0; i < mPageInfo.getPageData().getImages().size(); i++) {
+                if (mPageInfo.getPageData().getImages().get(i).contains("File not found")) {
+                    mImagesAdapter.notifyItemChanged(i);
+                }
+            }
+        }
+
+        if (!MyApplication.getInstance().downloadQueue.isEmpty() && !MyApplication.getInstance().downloadActive) {
+            MyApplication.getInstance().downloadActive = true;
+            new DownloadImageAsyncTask(this, this).execute(MyApplication.getInstance().downloadQueue.get(0));
+        }
+    }
 }
 

@@ -96,7 +96,7 @@ public class DownloadImageAsyncTask extends AsyncTask<String, Void, Object[]> {
                 break;
             case FILE_NOT_FOUND:
                 L.d("File not found: " + imageUrl);
-                mListener.onError(imageUrl);
+                mListener.onError(imageUrl, "File not found");
                 break;
             case ERROR_UNKNOWN:
                 L.d("Download unsuccessful: " + imageUrl + ". Error unknown...");
