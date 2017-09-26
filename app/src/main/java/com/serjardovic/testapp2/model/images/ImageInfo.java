@@ -2,9 +2,7 @@ package com.serjardovic.testapp2.model.images;
 
 import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.interfaces.NetworkListener;
-import com.serjardovic.testapp2.interfaces.NotifyCallback;
 import com.serjardovic.testapp2.network.DownloadImageAsyncTask;
-import com.serjardovic.testapp2.utils.ImageLoader;
 import com.serjardovic.testapp2.utils.L;
 
 import java.util.ArrayList;
@@ -72,7 +70,7 @@ public class ImageInfo implements NetworkListener<String> {
         }
 
         for(int i : indices) {
-            MyApplication.getInstance().getCallback().notifyItem(i);
+//            MyApplication.getInstance().getCallback().notifyItem(i);
         }
 
         if (!downloadQueue.isEmpty() && !downloadActive) {

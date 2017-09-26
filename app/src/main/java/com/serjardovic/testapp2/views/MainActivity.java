@@ -46,30 +46,14 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
         mRecyclerView.addOnScrollListener(mRecyclerScrollListener);
         mProgressBar.setVisibility(View.GONE);
 
-        MyApplication.getInstance().registerCallback(this);
     }
 
     private RecyclerView.OnScrollListener mRecyclerScrollListener = new RecyclerView.OnScrollListener() {
         @Override
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            int lastPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
-            int firstPosition = ((LinearLayoutManager) recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-
-            if (firstPosition > -1 && firstPosition < mPageInfo.getPageData().getImages().size()) {
-                if (!mPageInfo.getPageData().getImages().get(firstPosition).contains("File not found")
-                        && !FileCache.getInstance(MainActivity.this).getFile(mPageInfo.getPageData().getImages().get(firstPosition)).exists()) {
-                    if (mImageInfo.getDownloadQueue().size() > 0) {
-                        if (!mImageInfo.getDownloadQueue().getFirst().equals(mPageInfo.getPageData().getImages().get(firstPosition))) {
-                            mImageInfo.addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
-                        }
-                    } else {
-                        mImageInfo.addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
-                    }
-                }
-            }
+            int position = ((LinearLayoutManager) recyclerView.getLayoutManager()).findLastVisibleItemPosition();
             int updatePosition = recyclerView.getAdapter().getItemCount() - 2;
-
-            if (lastPosition >= updatePosition && !mPageInfo.isUpdating() && mPageInfo.getPageData().hasNextPage()) {
+            if (position >= updatePosition && !mPageInfo.isUpdating() && mPageInfo.getPageData().hasNextPage()) {
                 mImagesAdapter.isPageLoading(true);
                 mPageInfo.getListImagesByPage();
             }

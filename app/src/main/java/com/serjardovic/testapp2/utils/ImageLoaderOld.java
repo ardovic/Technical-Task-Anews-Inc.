@@ -20,9 +20,9 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class ImageLoader {
+public class ImageLoaderOld {
 
-    private static ImageLoader instance;
+    private static ImageLoaderOld instance;
 
     private FileCache fileCache;
     private MemoryCache memoryCache;
@@ -30,16 +30,16 @@ public class ImageLoader {
     private ExecutorService executorService;
 
     @Nullable
-    public static ImageLoader getInstance() {
+    public static ImageLoaderOld getInstance() {
         return instance;
     }
 
-    public static ImageLoader createInstance(Context context) {
-        instance = new ImageLoader(context);
+    public static ImageLoaderOld createInstance(Context context) {
+        instance = new ImageLoaderOld(context);
         return instance;
     }
 
-    private ImageLoader(Context context) {
+    private ImageLoaderOld(Context context) {
         fileCache = FileCache.getInstance(context);
         memoryCache = MemoryCache.getInstance();
         executorService = Executors.newFixedThreadPool(MyApplication.getInstance().getNumberOfCores() - 1);
@@ -49,7 +49,7 @@ public class ImageLoader {
 
     public void displayImage(String url, ImageView imageView, ProgressBar progressBar) {
 
-        if(fileCache.getFile(url).exists()) {
+        if (fileCache.getFile(url).exists()) {
 
             imageViews.put(imageView, url);
             Bitmap bitmap = memoryCache.get(url);
@@ -79,7 +79,7 @@ public class ImageLoader {
         if (b != null) {
             return b;
         } else {
-            if(!imageURL.contains("Image not found")) {
+            if (!imageURL.contains("Image not found")) {
                 L.d("File is corrupt: " + imageURL + ". Deleting the file and re-downloading...");
                 fileCache.getFile(imageURL).delete();
 

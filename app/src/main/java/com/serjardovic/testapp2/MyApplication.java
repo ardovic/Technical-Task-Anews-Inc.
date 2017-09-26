@@ -1,19 +1,32 @@
 package com.serjardovic.testapp2;
 
+import android.app.ActivityManager;
 import android.app.Application;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
 
-import com.serjardovic.testapp2.interfaces.NotifyCallback;
-import com.serjardovic.testapp2.model.images.dto.PageData;
+import com.nostra13.universalimageloader.cache.disc.impl.LimitedAgeDiskCache;
+import com.nostra13.universalimageloader.cache.disc.naming.Md5FileNameGenerator;
+import com.nostra13.universalimageloader.cache.memory.impl.UsingFreqLimitedMemoryCache;
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.ImageScaleType;
+import com.nostra13.universalimageloader.core.display.FadeInBitmapDisplayer;
+import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
+import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.model.Model;
-import com.serjardovic.testapp2.utils.ImageLoader;
+import com.serjardovic.testapp2.utils.ImageLoaderOld;
 import com.serjardovic.testapp2.utils.L;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
 
 public class MyApplication extends Application {
 
@@ -24,8 +37,6 @@ public class MyApplication extends Application {
     private int numberOfCores;
 
     private static MyApplication instance;
-
-    private NotifyCallback callback;
 
 
     @Override
@@ -51,15 +62,32 @@ public class MyApplication extends Application {
         numberOfCores = CoreManager.getNumberOfCores();
         L.d("Number of cores available on the device: " + numberOfCores);
 
-        ImageLoader.createInstance(this);
-    }
+        Executor downloadExecutor = Executors.newFixedThreadPool(numberOfCores);
+        Executor cachedExecutor = Executors.newSingleThreadExecutor();
+        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        int memClass = am.getMemoryClass();
+        final int memoryCacheSize = 1024 * 1024 * memClass / 8;
+        DisplayImageOptions options = new DisplayImageOptions.Builder()
+                .showImageOnLoading(android.R.color.transparent)
+                .bitmapConfig(Bitmap.Config.RGB_565)
+                .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
+//                .showImageOnLoading(R.drawable.ic_circle_place_holder)
+                .cacheInMemory(true)
+                .cacheOnDisk(true)
+                .displayer(new FadeInBitmapDisplayer(500, true, false, false))
+                .build();
+        File cacheDir = StorageUtils.getCacheDirectory(this);
 
-    public void registerCallback(NotifyCallback callback) {
-        this.callback = callback;
-    }
-
-    public NotifyCallback getCallback() {
-        return callback;
+        ImageLoaderConfiguration imageLoaderConfig = new ImageLoaderConfiguration.Builder(getApplicationContext())
+                .taskExecutor(downloadExecutor)
+                .taskExecutorForCachedImages(cachedExecutor)
+                .diskCacheFileNameGenerator(new Md5FileNameGenerator())
+                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
+                .diskCache(new LimitedAgeDiskCache(cacheDir, 100 * 1024 * 1024))
+                .imageDownloader(new BaseImageDownloader(this, 5 * 1000, 30 * 1000)) // connectTimeout (5 s), readTimeout (30 s)
+                .defaultDisplayImageOptions(options)
+                .build();
+        ImageLoader.getInstance().init(imageLoaderConfig);
     }
 
     public static MyApplication getInstance() {

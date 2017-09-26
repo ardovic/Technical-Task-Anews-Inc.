@@ -1,23 +1,19 @@
 package com.serjardovic.testapp2.views;
 
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
+import com.nostra13.universalimageloader.core.ImageLoader;
 import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.model.images.ImageInfo;
-import com.serjardovic.testapp2.network.DownloadImageAsyncTask;
-import com.serjardovic.testapp2.utils.ImageLoader;
-import com.serjardovic.testapp2.utils.L;
 import com.serjardovic.testapp2.R;
-import com.serjardovic.testapp2.utils.FileCache;
-import com.serjardovic.testapp2.utils.MemoryCache;
 
 
 import java.util.ArrayList;
@@ -49,6 +45,7 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         if (holder instanceof ItemHolder) {
             ItemHolder viewHolder = (ItemHolder) holder;
             viewHolder.bindView(mImages.get(position));
+            Log.d("viewHolder", viewHolder.toString());
         }
     }
 
@@ -102,14 +99,8 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         void bindView(String imageUrl) {
             textViewCaption.setText(imageUrl);
-            L.d("Setting text");
+            ImageLoader.getInstance().displayImage(imageUrl, imageViewPicture);
 
-            if (!MyApplication.getInstance().getModel().imageInfo.getDownloadQueue().isEmpty() && !mImageInfo.isDownloadActive()) {
-                mImageInfo.setDownloadActive(true);
-                new DownloadImageAsyncTask(MyApplication.getInstance(), mImageInfo).execute(mImageInfo.getDownloadQueue().getFirst());
-            }
-
-            ImageLoader.getInstance().displayImage(imageUrl, imageViewPicture, progressBar);
 
         }
     }
