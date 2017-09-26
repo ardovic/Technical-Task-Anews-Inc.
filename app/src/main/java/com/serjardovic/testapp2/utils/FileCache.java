@@ -39,9 +39,10 @@ public class FileCache {
     }
 
     public boolean renameFile(String oldName, String newName) {
-
-        File file = new File(cacheDirectory, oldName);
-        File file2 = new File(cacheDirectory, newName);
+        String filename1 = String.valueOf(oldName.hashCode());
+        String filename2 = String.valueOf(newName.hashCode());
+        File file = new File(cacheDirectory, filename1);
+        File file2 = new File(cacheDirectory, filename2);
         return file.renameTo(file2);
 
     }

@@ -48,7 +48,7 @@ public class DownloadImageAsyncTask extends AsyncTask<String, Void, Object[]> {
             if (file.exists()) {
                 return new Object[] {imageURL, Status.FILE_ALREADY_IN_CACHE};
             }
-           // file = fileCache.getFile(imageURL + "temp");
+            file = fileCache.getFile(imageURL + "temp");
             URL downloadURL = new URL(imageURL);
             connection = (HttpURLConnection) downloadURL.openConnection();
             connection.setConnectTimeout(30000);
@@ -79,7 +79,7 @@ public class DownloadImageAsyncTask extends AsyncTask<String, Void, Object[]> {
             }
         }
 
-        //fileCache.renameFile(imageURL+"temp", imageURL);
+        fileCache.renameFile(imageURL+"temp", imageURL);
         return new Object[] {imageURL, Status.DOWNLOAD_SUCCESSFUL};
     }
 
