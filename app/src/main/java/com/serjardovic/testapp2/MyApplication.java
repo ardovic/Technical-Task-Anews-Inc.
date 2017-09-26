@@ -5,9 +5,11 @@ import android.graphics.Point;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.serjardovic.testapp2.interfaces.NotifyCallback;
 import com.serjardovic.testapp2.model.images.dto.PageData;
 import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.model.Model;
+import com.serjardovic.testapp2.utils.ImageLoader;
 import com.serjardovic.testapp2.utils.L;
 
 import java.util.ArrayList;
@@ -23,6 +25,8 @@ public class MyApplication extends Application {
 
     private static MyApplication instance;
 
+    private NotifyCallback callback;
+
 
     @Override
     public void onCreate() {
@@ -30,6 +34,7 @@ public class MyApplication extends Application {
 
         model = new Model();
         instance = this;
+
         WindowManager windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         Display display = windowManager.getDefaultDisplay();
         Point point = new Point();
@@ -45,6 +50,16 @@ public class MyApplication extends Application {
 
         numberOfCores = CoreManager.getNumberOfCores();
         L.d("Number of cores available on the device: " + numberOfCores);
+
+        ImageLoader.createInstance(this);
+    }
+
+    public void registerCallback(NotifyCallback callback) {
+        this.callback = callback;
+    }
+
+    public NotifyCallback getCallback() {
+        return callback;
     }
 
     public static MyApplication getInstance() {

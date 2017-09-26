@@ -12,17 +12,15 @@ import android.widget.ProgressBar;
 import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.R;
 import com.serjardovic.testapp2.interfaces.NetworkListener;
+import com.serjardovic.testapp2.interfaces.NotifyCallback;
 import com.serjardovic.testapp2.model.images.ImageInfo;
 import com.serjardovic.testapp2.model.images.PageInfo;
 import com.serjardovic.testapp2.model.images.dto.PageData;
-import com.serjardovic.testapp2.network.DownloadImageAsyncTask;
 import com.serjardovic.testapp2.utils.FileCache;
 import com.serjardovic.testapp2.utils.L;
 
-import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NetworkListener<String> {
+public class MainActivity extends AppCompatActivity implements NotifyCallback {
 
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
@@ -48,6 +46,7 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
         mRecyclerView.addOnScrollListener(mRecyclerScrollListener);
         mProgressBar.setVisibility(View.GONE);
 
+        MyApplication.getInstance().registerCallback(this);
     }
 
     private RecyclerView.OnScrollListener mRecyclerScrollListener = new RecyclerView.OnScrollListener() {
@@ -59,8 +58,8 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             if (firstPosition > -1 && firstPosition < mPageInfo.getPageData().getImages().size()) {
                 if (!mPageInfo.getPageData().getImages().get(firstPosition).contains("File not found")
                         && !FileCache.getInstance(MainActivity.this).getFile(mPageInfo.getPageData().getImages().get(firstPosition)).exists()) {
-                    if (mImageInfo.downloadQueue.size() > 0) {
-                        if (!mImageInfo.downloadQueue.get(0).equals(mPageInfo.getPageData().getImages().get(firstPosition))) {
+                    if (mImageInfo.getDownloadQueue().size() > 0) {
+                        if (!mImageInfo.getDownloadQueue().getFirst().equals(mPageInfo.getPageData().getImages().get(firstPosition))) {
                             mImageInfo.addImageToQueueStart(mPageInfo.getPageData().getImages().get(firstPosition));
                         }
                     } else {
@@ -71,7 +70,6 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             int updatePosition = recyclerView.getAdapter().getItemCount() - 2;
 
             if (lastPosition >= updatePosition && !mPageInfo.isUpdating() && mPageInfo.getPageData().hasNextPage()) {
-
                 mImagesAdapter.isPageLoading(true);
                 mPageInfo.getListImagesByPage();
             }
@@ -101,11 +99,6 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
             mRecyclerView.setAdapter(mImagesAdapter);
             mProgressBar.setVisibility(View.GONE);
 
-        }
-
-        if (!mImageInfo.downloadQueue.isEmpty() && !mImageInfo.downloadActive) {
-            mImageInfo.downloadActive = true;
-            new DownloadImageAsyncTask(MainActivity.this, MainActivity.this).execute(mImageInfo.downloadQueue.get(0));
         }
     }
 
@@ -137,12 +130,6 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
                 mImagesAdapter.isPageLoading(false);
                 mImagesAdapter.setData(data.getImages());
             }
-
-            if (!mImageInfo.downloadQueue.isEmpty() && !mImageInfo.downloadActive) {
-                mImageInfo.downloadActive = true;
-                new DownloadImageAsyncTask(MainActivity.this, MainActivity.this).execute(mImageInfo.downloadQueue.get(0));
-            }
-
         }
 
         @Override
@@ -155,47 +142,8 @@ public class MainActivity extends AppCompatActivity implements NetworkListener<S
     };
 
     @Override
-    public void onSuccess(String imageURL) {
-
-        mImageInfo.downloadActive = false;
-        mImageInfo.removeImageFromQueue(imageURL);
-
-        List<Integer> indices = new ArrayList<>();
-        for (int i = 0; i < mPageInfo.getPageData().getImages().size(); i++) {
-            if (imageURL.equals(mPageInfo.getPageData().getImages().get(i))) {
-                indices.add(i);
-            }
-        }
-        for (Integer i : indices) {
-            mImagesAdapter.notifyItemChanged(i);
-        }
-
-        if (!mImageInfo.downloadQueue.isEmpty() && !mImageInfo.downloadActive) {
-            mImageInfo.downloadActive = true;
-            new DownloadImageAsyncTask(this, this).execute(mImageInfo.downloadQueue.get(0));
-        }
-    }
-
-    @Override
-    public void onError(String... error) {
-
-        mImageInfo.downloadActive = false;
-        mImageInfo.removeImageFromQueue(error[0]);
-
-        if (error.length > 1 && error[1].equals("File not found")) {
-            mPageInfo.getPageData().changeImageName(error[0], error[1] + ": " + error[0]);
-
-            for (int i = 0; i < mPageInfo.getPageData().getImages().size(); i++) {
-                if (mPageInfo.getPageData().getImages().get(i).contains("File not found")) {
-                    mImagesAdapter.notifyItemChanged(i);
-                }
-            }
-        }
-
-        if (!mImageInfo.downloadQueue.isEmpty() && !mImageInfo.downloadActive) {
-            mImageInfo.downloadActive = true;
-            new DownloadImageAsyncTask(this, this).execute(mImageInfo.downloadQueue.get(0));
-        }
+    public void notifyItem(int position) {
+        mImagesAdapter.notifyItemChanged(position);
     }
 }
 

@@ -29,12 +29,20 @@ public class FileCache {
         return instance;
     }
 
-    public File getFile(String url) {
+    public File getFile(String fileName) {
         //I identify mImages by hashcode. Not a perfect solution, good for the demo.
-        String filename = String.valueOf(url.hashCode());
+        String filename = String.valueOf(fileName.hashCode());
         //Another possible solution (thanks to grantland)
         //String filename = URLEncoder.encode(url);
         return new File(cacheDirectory, filename);
+
+    }
+
+    public boolean renameFile(String oldName, String newName) {
+
+        File file = new File(cacheDirectory, oldName);
+        File file2 = new File(cacheDirectory, newName);
+        return file.renameTo(file2);
 
     }
 
@@ -46,4 +54,14 @@ public class FileCache {
             f.delete();
     }
 
+    public void clearTemp() {
+        File[] files = cacheDirectory.listFiles();
+        if (files == null)
+            return;
+
+        for(File file : files) {
+            if(file.getPath().endsWith("TEMP"))
+                file.delete();
+        }
+    }
 }
