@@ -26,10 +26,10 @@ public class L {
 
     public static void q() {
         StringBuilder sb = new StringBuilder("Current que: ");
-        if(!MyApplication.getInstance().downloadQueue.isEmpty()) {
-            for (int i = 0; i < MyApplication.getInstance().downloadQueue.size(); i++) {
-                sb.append(MyApplication.getInstance().downloadQueue.get(i).substring(
-                        MyApplication.getInstance().downloadQueue.get(i).lastIndexOf("/") + 1
+        if(!MyApplication.getInstance().getModel().imageInfo.downloadQueue.isEmpty()) {
+            for (int i = 0; i < MyApplication.getInstance().getModel().imageInfo.downloadQueue.size(); i++) {
+                sb.append(MyApplication.getInstance().getModel().imageInfo.downloadQueue.get(i).substring(
+                        MyApplication.getInstance().getModel().imageInfo.downloadQueue.get(i).lastIndexOf("/") + 1
                 ) + ", ");
             }
             sb.deleteCharAt(sb.lastIndexOf(","));

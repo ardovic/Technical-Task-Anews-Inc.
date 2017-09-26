@@ -23,36 +23,6 @@ public class MyApplication extends Application {
 
     private static MyApplication instance;
 
-    // TODO temp
-    public boolean downloadActive = false;
-    public List<String> downloadQueue;
-    public void addImageToQueueEnd(String imageURL) {
-        if(!downloadQueue.contains(imageURL)) {
-            L.d("Image added to queue end: " + imageURL);
-            downloadQueue.add(imageURL);
-        }
-    }
-    public void addImageToQueueStart(String imageURL) {
-        if(!downloadQueue.isEmpty() && !downloadQueue.get(0).equals(imageURL)) {
-            L.d("Image added to queue start: " + imageURL);
-            downloadQueue.remove(imageURL);
-            downloadQueue.add(0, imageURL);
-            L.q();
-        } else {
-            L.d("Image added to queue start: " + imageURL);
-            downloadQueue.add(imageURL);
-            L.q();
-        }
-    }
-    public void removeImageFromQueue(String imageURL) {
-        if(!downloadQueue.isEmpty() && downloadQueue.contains(imageURL)) {
-            L.d("Image removed from queue: " + imageURL);
-            downloadQueue.remove(imageURL);
-            L.q();
-        }
-    }
-
-
 
     @Override
     public void onCreate() {
@@ -75,8 +45,6 @@ public class MyApplication extends Application {
 
         numberOfCores = CoreManager.getNumberOfCores();
         L.d("Number of cores available on the device: " + numberOfCores);
-
-        downloadQueue = new ArrayList<>();
     }
 
     public static MyApplication getInstance() {
