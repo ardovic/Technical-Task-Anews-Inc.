@@ -12,15 +12,12 @@ import android.widget.ProgressBar;
 import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.R;
 import com.serjardovic.testapp2.interfaces.NetworkListener;
-import com.serjardovic.testapp2.interfaces.NotifyCallback;
-import com.serjardovic.testapp2.model.images.ImageInfo;
 import com.serjardovic.testapp2.model.images.PageInfo;
 import com.serjardovic.testapp2.model.images.dto.PageData;
-import com.serjardovic.testapp2.utils.FileCache;
 import com.serjardovic.testapp2.utils.L;
 
 
-public class MainActivity extends AppCompatActivity implements NotifyCallback {
+public class MainActivity extends AppCompatActivity {
 
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
@@ -28,24 +25,23 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
     private ImagesAdapter mImagesAdapter;
     private LinearLayoutManager mLayoutManager;
     private PageInfo mPageInfo;
-    private ImageInfo mImageInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mPageInfo = MyApplication.getInstance().getModel().pageInfo;
-        mImageInfo = MyApplication.getInstance().getModel().imageInfo;
+        mPageInfo = MyApplication.getInstance().getModel().getPageInfo();
+
+        mProgressBar = (ProgressBar) findViewById(R.id.pb_loader);
+        mProgressBar.setVisibility(View.GONE);
+
+        mLayoutManager = new LinearLayoutManager(getApplicationContext());
 
         mRecyclerView = (RecyclerView) findViewById(R.id.rv_main);
-        mProgressBar = (ProgressBar) findViewById(R.id.pb_loader);
-        mLayoutManager = new LinearLayoutManager(getApplicationContext());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addOnScrollListener(mRecyclerScrollListener);
-        mProgressBar.setVisibility(View.GONE);
-
     }
 
     private RecyclerView.OnScrollListener mRecyclerScrollListener = new RecyclerView.OnScrollListener() {
@@ -71,7 +67,6 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
         }
 
         if (mPageInfo.getPageData() != null) {
-
             int imageHeight;
             if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
                 imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayWidth()) / 3);
@@ -82,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
             mImagesAdapter = new ImagesAdapter(mPageInfo.getPageData().getImages(), imageHeight);
             mRecyclerView.setAdapter(mImagesAdapter);
             mProgressBar.setVisibility(View.GONE);
-
         }
     }
 
@@ -95,11 +89,6 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
     private NetworkListener mPageListener = new NetworkListener<PageData>() {
         @Override
         public void onSuccess(PageData data) {
-
-            for (String imageURL : data.getImages()) {
-                mImageInfo.addImageToQueueEnd(imageURL);
-            }
-
             if (mImagesAdapter == null) {
                 int imageHeight;
                 if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
@@ -124,10 +113,5 @@ public class MainActivity extends AppCompatActivity implements NotifyCallback {
             L.d("Post Execute Error");
         }
     };
-
-    @Override
-    public void notifyItem(int position) {
-        mImagesAdapter.notifyItemChanged(position);
-    }
 }
 

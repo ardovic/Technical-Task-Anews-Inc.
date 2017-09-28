@@ -11,24 +11,20 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.serjardovic.testapp2.MyApplication;
-import com.serjardovic.testapp2.model.images.ImageInfo;
 import com.serjardovic.testapp2.R;
 
-
 import java.util.ArrayList;
+import java.util.List;
 
 class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private static final int ITEM_HOLDER = 0;
     private ArrayList<String> mImages;
     private int mHeight;
     private boolean isFooterEnabled;
-    private ImageInfo mImageInfo;
 
-    ImagesAdapter(ArrayList<String> images, int height) {
+    ImagesAdapter(List<String> images, int height) {
         mImages = new ArrayList<>(images);
         mHeight = height;
-        mImageInfo = MyApplication.getInstance().getModel().imageInfo;
     }
 
     @Override
@@ -64,11 +60,10 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         return mImages == null ? 0 : isFooterEnabled ? mImages.size() + 1 : mImages.size();
     }
 
-    public void setData(ArrayList<String> images) {
+    public void setData(List<String> images) {
         int oldItemCount = getItemCount();
         mImages.addAll(images);
         notifyItemRangeInserted(oldItemCount - 1, getItemCount() - oldItemCount);
-
     }
 
     private class FooterHolder extends RecyclerView.ViewHolder {
@@ -94,13 +89,11 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             TableRow.LayoutParams params = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, mHeight);
             itemView.setLayoutParams(params);
 
-
         }
 
         void bindView(String imageUrl) {
             textViewCaption.setText(imageUrl);
             ImageLoader.getInstance().displayImage(imageUrl, imageViewPicture);
-
 
         }
     }

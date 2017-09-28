@@ -1,16 +1,23 @@
 package com.serjardovic.testapp2.model.images;
 
-import android.os.AsyncTask;
-
+import com.serjardovic.testapp2.MyApplication;
+import com.serjardovic.testapp2.interfaces.ApiInterface;
 import com.serjardovic.testapp2.interfaces.NetworkListener;
 import com.serjardovic.testapp2.model.images.dto.PageData;
-import com.serjardovic.testapp2.network.PostRequestAsyncTask;
+import com.serjardovic.testapp2.network.ApiClient;
+import com.serjardovic.testapp2.network.RequestData;
+import com.serjardovic.testapp2.utils.L;
 
-public class PageInfo implements NetworkListener<PageData> {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class PageInfo {
 
     private boolean mIsUpdating = false;
     private NetworkListener<PageData> mListener;
     private PageData mPageData;
+    private ApiInterface apiInterface;
 
     public PageInfo() {}
 
@@ -28,23 +35,35 @@ public class PageInfo implements NetworkListener<PageData> {
 
     public void getListImagesByPage() {
         mIsUpdating = true;
-        new PostRequestAsyncTask(this).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, mPageData == null ? 1 : mPageData.getNextPage());
-    }
+        int page = 1;
 
-    @Override
-    public void onSuccess(PageData data) {
-        mIsUpdating = false;
-        mListener.onSuccess(data);
-        if (mPageData == null) {
-            mPageData = data;
-        } else {
-            mPageData.updateData(data);
+        if(MyApplication.getInstance().getModel().getPageInfo().getPageData() != null) {
+            page = MyApplication.getInstance().getModel().getPageInfo().getPageData().getNextPage();
         }
-    }
 
-    @Override
-    public void onError(String... error) {
-        mIsUpdating = false;
-        mListener.onError(error);
+        if(mPageData.hasNextPage()) {
+            apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
+            Call<PageData> call = apiInterface.getPageData(new RequestData(page));
+            call.enqueue(new Callback<PageData>() {
+                @Override
+                public void onResponse(Call<PageData> call, Response<PageData> response) {
+                    mIsUpdating = false;
+                    mListener.onSuccess(response.body());
+                    if (mPageData == null) {
+                        mPageData = response.body();
+                    } else {
+                        mPageData.updateData(response.body());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<PageData> call, Throwable t) {
+                    mIsUpdating = false;
+                    mListener.onError();
+                }
+            });
+        } else {
+            L.d("No more pages left...");
+        }
     }
 }

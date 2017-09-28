@@ -38,8 +38,6 @@ public abstract class CoreManager {
         } catch (Exception e) {
             //Default to return 1 core
             return 1;
-
         }
     }
-
 }

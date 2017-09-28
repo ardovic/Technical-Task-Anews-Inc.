@@ -1,15 +1,25 @@
 package com.serjardovic.testapp2.model.images.dto;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class PageData {
-    private ArrayList<String> images = new ArrayList<>();
-    private int currentPage;
+
+    @SerializedName("images")
+    @Expose
+    private List<String> images = null;
+    @SerializedName("next_page")
+    @Expose
     private int nextPage;
+    @SerializedName("current_page")
+    @Expose
+    private int currentPage;
 
 
-    public ArrayList<String> getImages() {
+    public List<String> getImages() {
         return images;
     }
 
@@ -34,19 +44,14 @@ public class PageData {
     }
 
     public void updateData(PageData data) {
-        setNextPage(data.getNextPage());
+        if(data.getNextPage() != 0) {
+            setNextPage(data.getNextPage());
+        } else {
+            setNextPage(-1);
+        }
+
         setCurrentPage(data.getCurrentPage());
         addImages(data.getImages());
-    }
-
-    public void changeImageName(String oldName, String newName) {
-        if(images.contains(oldName)) {
-            for(int i = 0; i < images.size(); i++) {
-                if(images.get(i).equals(oldName)) {
-                    images.set(i, newName);
-                }
-            }
-        }
     }
 
     public boolean hasNextPage() {

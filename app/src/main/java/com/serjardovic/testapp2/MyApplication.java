@@ -20,13 +20,11 @@ import com.nostra13.universalimageloader.core.download.BaseImageDownloader;
 import com.nostra13.universalimageloader.utils.StorageUtils;
 import com.serjardovic.testapp2.utils.CoreManager;
 import com.serjardovic.testapp2.model.Model;
-import com.serjardovic.testapp2.utils.ImageLoaderOld;
 import com.serjardovic.testapp2.utils.L;
 
 import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 
 public class MyApplication extends Application {
 
@@ -37,7 +35,6 @@ public class MyApplication extends Application {
     private int numberOfCores;
 
     private static MyApplication instance;
-
 
     @Override
     public void onCreate() {
@@ -64,14 +61,15 @@ public class MyApplication extends Application {
 
         Executor downloadExecutor = Executors.newFixedThreadPool(numberOfCores);
         Executor cachedExecutor = Executors.newSingleThreadExecutor();
-        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        int memClass = am.getMemoryClass();
-        final int memoryCacheSize = 1024 * 1024 * memClass / 8;
+        //ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        //int memClass = am.getMemoryClass();
+        //final int memoryCacheSize = 1024 * 1024 * memClass / 8;
+        final int memoryCacheSize = (int)Runtime.getRuntime().maxMemory() / 2; // Half of the available memory
         DisplayImageOptions options = new DisplayImageOptions.Builder()
                 .showImageOnLoading(android.R.color.transparent)
                 .bitmapConfig(Bitmap.Config.RGB_565)
                 .imageScaleType(ImageScaleType.IN_SAMPLE_INT)
-//                .showImageOnLoading(R.drawable.ic_circle_place_holder)
+//              .showImageOnLoading(R.drawable.ic_circle_place_holder)
                 .cacheInMemory(true)
                 .cacheOnDisk(true)
                 .displayer(new FadeInBitmapDisplayer(500, true, false, false))
@@ -82,7 +80,7 @@ public class MyApplication extends Application {
                 .taskExecutor(downloadExecutor)
                 .taskExecutorForCachedImages(cachedExecutor)
                 .diskCacheFileNameGenerator(new Md5FileNameGenerator())
-                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize)) // 2 Mb
+                .memoryCache(new UsingFreqLimitedMemoryCache(memoryCacheSize))
                 .diskCache(new LimitedAgeDiskCache(cacheDir, 100 * 1024 * 1024))
                 .imageDownloader(new BaseImageDownloader(this, 5 * 1000, 30 * 1000)) // connectTimeout (5 s), readTimeout (30 s)
                 .defaultDisplayImageOptions(options)
@@ -106,7 +104,4 @@ public class MyApplication extends Application {
         return displayHeight;
     }
 
-    public int getNumberOfCores() {
-        return numberOfCores;
-    }
 }
