@@ -5,7 +5,7 @@ import com.serjardovic.testapp2.interfaces.ApiInterface;
 import com.serjardovic.testapp2.interfaces.NetworkListener;
 import com.serjardovic.testapp2.model.images.dto.PageData;
 import com.serjardovic.testapp2.network.ApiClient;
-import com.serjardovic.testapp2.network.RequestData;
+import com.serjardovic.testapp2.model.images.dto.RequestData;
 import com.serjardovic.testapp2.utils.L;
 
 import retrofit2.Call;

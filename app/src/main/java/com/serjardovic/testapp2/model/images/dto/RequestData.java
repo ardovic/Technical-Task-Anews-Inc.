@@ -1,4 +1,4 @@
-package com.serjardovic.testapp2.network;
+package com.serjardovic.testapp2.model.images.dto;
 
 import java.io.Serializable;
 
