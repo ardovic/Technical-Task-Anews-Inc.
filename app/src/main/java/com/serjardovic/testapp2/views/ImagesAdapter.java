@@ -1,5 +1,6 @@
 package com.serjardovic.testapp2.views;
 
+import android.app.Activity;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -11,7 +12,9 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
+import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.R;
+import com.serjardovic.testapp2.interfaces.FragmentCommunicator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +25,10 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private int mHeight;
     private boolean isFooterEnabled;
 
-    ImagesAdapter(List<String> images, int height) {
+    private FragmentCommunicator mCommunicator;
+
+    ImagesAdapter(Activity activity, List<String> images, int height) {
+        mCommunicator = (FragmentCommunicator) activity;
         mImages = new ArrayList<>(images);
         mHeight = height;
     }
@@ -73,7 +79,7 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
         }
     }
 
-    private class ItemHolder extends RecyclerView.ViewHolder {
+    private class ItemHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
         TextView textViewCaption;
         ImageView imageViewPicture;
@@ -81,6 +87,8 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         ItemHolder(View itemView) {
             super(itemView);
+
+            itemView.setOnClickListener(this);
 
             textViewCaption = (TextView) itemView.findViewById(R.id.tv_caption);
             imageViewPicture = (ImageView) itemView.findViewById(R.id.iv_image);
@@ -95,6 +103,12 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
             textViewCaption.setText(imageUrl);
             ImageLoader.getInstance().displayImage(imageUrl, imageViewPicture);
 
+        }
+
+        @Override
+        public void onClick(View v) {
+            MyApplication.getInstance().getModel().getPageInfo().setCurrentFullImage(textViewCaption.getText().toString());
+            mCommunicator.showFullImage();
         }
     }
 }

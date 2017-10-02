@@ -18,6 +18,14 @@ public class PageInfo {
     private NetworkListener<PageData> mListener;
     private PageData mPageData;
     private ApiInterface apiInterface;
+    private String currentFullImage;
+
+    public String getCurrentFullImage() {
+        return currentFullImage;
+    }
+    public void setCurrentFullImage(String x){
+        this.currentFullImage = x;
+    }
 
     public PageInfo() {}
 
@@ -41,7 +49,7 @@ public class PageInfo {
             page = MyApplication.getInstance().getModel().getPageInfo().getPageData().getNextPage();
         }
 
-        if(mPageData.hasNextPage()) {
+        if(mPageData == null || mPageData.hasNextPage()) {
             apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
             Call<PageData> call = apiInterface.getPageData(new RequestData(page));
             call.enqueue(new Callback<PageData>() {
