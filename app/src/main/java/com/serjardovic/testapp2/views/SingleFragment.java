@@ -14,9 +14,11 @@ import com.serjardovic.testapp2.R;
 
 public class SingleFragment extends Fragment {
 
-    public final static String IMAGE_URL = "imageUrl";
+    public static final String TAG = "single_fragment";
+    public final static String IMAGE_URL = "image_url";
 
-    private String imageURL = "";
+    private PhotoView photoView;
+    private TextView textView;
 
     public static SingleFragment newInstance(String imageURL) {
         SingleFragment singleFragment = new SingleFragment();
@@ -26,13 +28,11 @@ public class SingleFragment extends Fragment {
         return singleFragment;
     }
 
-    private PhotoView photoView;
-    private TextView textView;
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        imageURL = getArguments().getString(IMAGE_URL, "");
+    public void updateFragmentImage(String imageURL) {
+        this.getArguments().clear();
+        Bundle args = new Bundle();
+        args.putString(IMAGE_URL, imageURL);
+        this.getArguments().putAll(args);
     }
 
     @Nullable
@@ -46,13 +46,15 @@ public class SingleFragment extends Fragment {
         super.onActivityCreated(savedInstanceState);
         photoView = (PhotoView) getActivity().findViewById(R.id.photo_view);
         textView = (TextView) getActivity().findViewById(R.id.tv_captionx);
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        textView.setText(imageURL);
-        ImageLoader.getInstance().displayImage(imageURL, photoView);
+        String imageURL = getArguments().getString(IMAGE_URL, null);
+        if(imageURL != null) {
+            textView.setText(imageURL);
+            ImageLoader.getInstance().displayImage(imageURL, photoView);
+        }
     }
 }
