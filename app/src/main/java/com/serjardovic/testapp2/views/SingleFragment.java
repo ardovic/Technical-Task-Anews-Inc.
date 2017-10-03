@@ -14,12 +14,14 @@ import com.serjardovic.testapp2.R;
 
 public class SingleFragment extends Fragment {
 
+    public final static String IMAGE_URL = "imageUrl";
+
     private String imageURL = "";
 
     public static SingleFragment newInstance(String imageURL) {
         SingleFragment singleFragment = new SingleFragment();
         Bundle args = new Bundle();
-        args.putString("imageURL", imageURL);
+        args.putString(IMAGE_URL, imageURL);
         singleFragment.setArguments(args);
         return singleFragment;
     }
@@ -30,7 +32,7 @@ public class SingleFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        imageURL = getArguments().getString("imageURL", "");
+        imageURL = getArguments().getString(IMAGE_URL, "");
     }
 
     @Nullable

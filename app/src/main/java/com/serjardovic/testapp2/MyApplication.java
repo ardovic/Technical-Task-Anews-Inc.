@@ -1,8 +1,6 @@
 package com.serjardovic.testapp2;
 
-import android.app.ActivityManager;
 import android.app.Application;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Point;
 import android.view.Display;

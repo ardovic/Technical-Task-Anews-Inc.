@@ -15,10 +15,10 @@ public class MainActivity extends AppCompatActivity implements FragmentCommunica
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (getFragmentManager().findFragmentByTag("CF") == null) {
+        if (getFragmentManager().findFragmentByTag(CollectiveFragment.TAG) == null) {
             CollectiveFragment mCollectiveFragment = new CollectiveFragment();
             FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
-            mTransaction.add(R.id.root_layout, mCollectiveFragment, "CF");
+            mTransaction.add(R.id.root_layout, mCollectiveFragment, CollectiveFragment.TAG);
             mTransaction.commit();
         }
     }
@@ -28,7 +28,7 @@ public class MainActivity extends AppCompatActivity implements FragmentCommunica
         SingleFragment mSingleFragment = SingleFragment.newInstance(imageURL);
         FragmentTransaction mTransaction = getFragmentManager().beginTransaction();
         mTransaction.replace(R.id.root_layout, mSingleFragment);
-        mTransaction.addToBackStack("replaceColWithSin");
+        mTransaction.addToBackStack(null);
         mTransaction.commit();
     }
 

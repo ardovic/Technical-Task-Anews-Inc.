@@ -21,6 +21,9 @@ import com.serjardovic.testapp2.utils.L;
 
 public class CollectiveFragment extends Fragment {
 
+    public static final String TAG = "collective_fragment";
+    public final static String POSITION = "position";
+
     private RecyclerView mRecyclerView;
     private ProgressBar mProgressBar;
 
@@ -40,7 +43,7 @@ public class CollectiveFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         if (savedInstanceState != null) {
-            mLastFirstVisiblePosition = savedInstanceState.getInt("position");
+            mLastFirstVisiblePosition = savedInstanceState.getInt(POSITION);
         }
 
         mPageInfo = MyApplication.getInstance().getModel().getPageInfo();
@@ -59,7 +62,7 @@ public class CollectiveFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putInt("position", mLastFirstVisiblePosition);
+        outState.putInt(POSITION, mLastFirstVisiblePosition);
     }
 
     private RecyclerView.OnScrollListener mRecyclerScrollListener = new RecyclerView.OnScrollListener() {
@@ -77,25 +80,15 @@ public class CollectiveFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
         mPageInfo.setNetworkListener(mPageListener);
 
         if (mPageInfo.getPageData() == null && !mPageInfo.isUpdating()) {
             mPageInfo.getListImagesByPage();
         }
-
         if (mPageInfo.getPageData() != null) {
-            int imageHeight;
-            if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayWidth()) / 3);
-            } else {
-                imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayHeight()) / 3);
-            }
-
-            mImagesAdapter = new ImagesAdapter(getActivity(), mPageInfo.getPageData().getImages(), imageHeight);
+            mImagesAdapter = new ImagesAdapter(getActivity(), mPageInfo.getPageData().getImages(), getImageHeight());
             mRecyclerView.setAdapter(mImagesAdapter);
             mProgressBar.setVisibility(View.GONE);
-
             mRecyclerView.getLayoutManager().scrollToPosition(mLastFirstVisiblePosition);
         }
     }
@@ -111,13 +104,7 @@ public class CollectiveFragment extends Fragment {
         @Override
         public void onSuccess(PageData data) {
             if (mImagesAdapter == null) {
-                int imageHeight;
-                if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-                    imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayWidth()) / 3);
-                } else {
-                    imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayHeight()) / 3);
-                }
-                mImagesAdapter = new ImagesAdapter(getActivity(), data.getImages(), imageHeight);
+                mImagesAdapter = new ImagesAdapter(getActivity(), data.getImages(), getImageHeight());
                 mRecyclerView.setAdapter(mImagesAdapter);
                 mProgressBar.setVisibility(View.GONE);
             } else {
@@ -135,4 +122,13 @@ public class CollectiveFragment extends Fragment {
         }
     };
 
+    public int getImageHeight(){
+        int imageHeight;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayWidth()) / 3);
+        } else {
+            imageHeight = (int) ((double) (2 * MyApplication.getInstance().getDisplayHeight()) / 3);
+        }
+        return imageHeight;
+    }
 }
