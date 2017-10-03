@@ -10,13 +10,28 @@ import android.widget.TextView;
 
 import com.github.chrisbanes.photoview.PhotoView;
 import com.nostra13.universalimageloader.core.ImageLoader;
-import com.serjardovic.testapp2.MyApplication;
 import com.serjardovic.testapp2.R;
 
 public class SingleFragment extends Fragment {
 
+    private String imageURL = "";
+
+    public static SingleFragment newInstance(String imageURL) {
+        SingleFragment singleFragment = new SingleFragment();
+        Bundle args = new Bundle();
+        args.putString("imageURL", imageURL);
+        singleFragment.setArguments(args);
+        return singleFragment;
+    }
+
     private PhotoView photoView;
     private TextView textView;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        imageURL = getArguments().getString("imageURL", "");
+    }
 
     @Nullable
     @Override
@@ -27,7 +42,6 @@ public class SingleFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
         photoView = (PhotoView) getActivity().findViewById(R.id.photo_view);
         textView = (TextView) getActivity().findViewById(R.id.tv_captionx);
 
@@ -36,8 +50,7 @@ public class SingleFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-
-        textView.setText(MyApplication.getInstance().getModel().getPageInfo().getCurrentFullImage());
-        ImageLoader.getInstance().displayImage(textView.getText().toString(), photoView);
+        textView.setText(imageURL);
+        ImageLoader.getInstance().displayImage(imageURL, photoView);
     }
 }

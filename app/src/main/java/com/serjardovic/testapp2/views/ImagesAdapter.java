@@ -107,8 +107,7 @@ class ImagesAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         @Override
         public void onClick(View v) {
-            MyApplication.getInstance().getModel().getPageInfo().setCurrentFullImage(textViewCaption.getText().toString());
-            mCommunicator.showFullImage();
+            mCommunicator.showFullImage(textViewCaption.getText().toString());
         }
     }
 }
