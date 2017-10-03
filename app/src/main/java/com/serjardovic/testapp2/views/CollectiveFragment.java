@@ -39,7 +39,7 @@ public class CollectiveFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             mLastFirstVisiblePosition = savedInstanceState.getInt("position");
         }
 
@@ -103,7 +103,7 @@ public class CollectiveFragment extends Fragment {
     @Override
     public void onPause() {
         super.onPause();
-        mLastFirstVisiblePosition = ((LinearLayoutManager)mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
+        mLastFirstVisiblePosition = ((LinearLayoutManager) mRecyclerView.getLayoutManager()).findFirstVisibleItemPosition();
         mPageInfo.setNetworkListener(null);
     }
 

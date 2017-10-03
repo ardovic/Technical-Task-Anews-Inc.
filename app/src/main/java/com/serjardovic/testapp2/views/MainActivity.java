@@ -11,9 +11,6 @@ import com.serjardovic.testapp2.interfaces.FragmentCommunicator;
 
 public class MainActivity extends AppCompatActivity implements FragmentCommunicator {
 
-    private FragmentManager mFragmentManager;
-    private CollectiveFragment mCollectiveFragment;
-    private SingleFragment mSingleFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
