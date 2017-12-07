@@ -1,4 +1,4 @@
-# Technical-Task-1
+# Technical-Task-Anews-Inc.
 
 Develop an app which downloads large images (>10MB) from a limited bandwidth (10mbps) server with pagination into a scrollable list.
 
